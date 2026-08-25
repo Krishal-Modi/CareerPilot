@@ -55,6 +55,18 @@ def application_update(request, pk):
 
 
 @login_required
+def application_status_update(request, pk):
+	application = get_object_or_404(JobApplication, pk=pk, user=request.user)
+	if request.method == 'POST':
+		new_status = request.POST.get('status')
+		valid_statuses = {value for value, _ in JobApplication.Status.choices}
+		if new_status in valid_statuses:
+			application.status = new_status
+			application.save(update_fields=('status', 'updated_at'))
+	return redirect('dashboard')
+
+
+@login_required
 def application_delete(request, pk):
 	application = get_object_or_404(JobApplication, pk=pk, user=request.user)
 	if request.method == 'POST':

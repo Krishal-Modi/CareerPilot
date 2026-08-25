@@ -11,9 +11,9 @@
 <body>
     <div class="shell">
         <header class="topbar">
-            <a class="brand" href="{% url 'dashboard' %}">CareerPilot</a>
+            <a class="brand" href="{% url 'home' %}"><span class="brand-mark" aria-hidden="true">C</span>CareerPilot</a>
             {% if user.is_authenticated %}
-            <nav class="main-nav" aria-label="Main navigation"><a href="{% url 'dashboard' %}">Applications</a><a href="{% url 'application_create' %}">Add job</a></nav>
+            <nav class="main-nav" aria-label="Main navigation"><a href="{% url 'home' %}">Home</a><a href="{% url 'dashboard' %}">Applications</a><a class="nav-add" href="{% url 'application_create' %}"><span aria-hidden="true">+</span> Add job</a></nav>
                 <div class="topbar-actions">
                     <span class="user-email">{{ user.email }}</span>
                     <form method="post" action="{% url 'logout' %}">
@@ -21,6 +21,8 @@
                         <button class="button button-quiet" type="submit">Log out</button>
                     </form>
                 </div>
+            {% else %}
+                <nav class="main-nav public-nav" aria-label="Main navigation"><a href="{% url 'login' %}">Log in</a><a class="nav-add" href="{% url 'register' %}">Create account</a></nav>
             {% endif %}
         </header>
         <main class="content">{% block content %}{% endblock %}</main>

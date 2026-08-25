@@ -1,9 +1,22 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
+from django.conf import settings
 
 
 class AuthenticationFlowTests(TestCase):
+	def test_sessions_persist_for_two_weeks(self):
+		self.assertEqual(settings.SESSION_COOKIE_AGE, 60 * 60 * 24 * 14)
+		self.assertFalse(settings.SESSION_EXPIRE_AT_BROWSER_CLOSE)
+
+	def test_home_page_is_public(self):
+		response = self.client.get(reverse('home'))
+
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, 'Turn job hunting into a plan.')
+		self.assertContains(response, reverse('login'))
+		self.assertContains(response, reverse('register'))
+
 	def test_dashboard_requires_authentication(self):
 		response = self.client.get(reverse('dashboard'))
 

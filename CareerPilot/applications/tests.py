@@ -1,7 +1,9 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.urls import reverse
+from django.utils import timezone
 
+from .forms import JobApplicationForm
 from .models import JobApplication
 from contacts.models import Referral
 
@@ -49,10 +51,37 @@ class JobApplicationOwnershipTests(TestCase):
 
 		edit_response = self.client.get(reverse('application_update', args=[self.application.pk]))
 		delete_response = self.client.post(reverse('application_delete', args=[self.application.pk]))
+		status_response = self.client.post(reverse('application_status_update', args=[self.application.pk]), {'status': 'accepted'})
 
 		self.assertEqual(edit_response.status_code, 404)
 		self.assertEqual(delete_response.status_code, 404)
+		self.assertEqual(status_response.status_code, 404)
 		self.assertTrue(JobApplication.objects.filter(pk=self.application.pk).exists())
+
+	def test_owner_can_update_status_from_dashboard(self):
+		self.client.force_login(self.owner)
+
+		response = self.client.post(
+			reverse('application_status_update', args=[self.application.pk]),
+			{'status': 'accepted'},
+		)
+
+		self.assertRedirects(response, reverse('dashboard'))
+		self.application.refresh_from_db()
+		self.assertEqual(self.application.status, JobApplication.Status.ACCEPTED)
+
+	def test_application_form_uses_today_and_requested_fields(self):
+		form = JobApplicationForm()
+
+		self.assertEqual(form.initial['date_applied'], timezone.localdate())
+		self.assertEqual(
+			set(form.fields),
+			{
+				'company', 'job_title', 'job_url', 'location', 'work_type', 'job_type',
+				'date_applied', 'status', 'source', 'follow_up_date', 'next_action',
+				'next_action_date', 'job_description', 'notes',
+			},
+		)
 
 	def test_edit_saves_multiple_referrals(self):
 		self.client.force_login(self.owner)

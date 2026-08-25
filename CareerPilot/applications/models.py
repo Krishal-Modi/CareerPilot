@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 
 
 class JobApplication(models.Model):
@@ -8,7 +9,8 @@ class JobApplication(models.Model):
 		APPLIED = 'applied', 'Applied'
 		PENDING = 'pending', 'Pending'
 		ASSESSMENT = 'assessment', 'Assessment'
-		INTERVIEW = 'interview', 'Interview'
+		INTERVIEW = 'interview', 'Interviewed'
+		ACCEPTED = 'accepted', 'Accepted'
 		OFFER = 'offer', 'Offer'
 		REJECTED = 'rejected', 'Rejected'
 		WITHDRAWN = 'withdrawn', 'Withdrawn'
@@ -48,7 +50,7 @@ class JobApplication(models.Model):
 	location = models.CharField(max_length=150, blank=True)
 	work_type = models.CharField(max_length=20, choices=WorkType.choices, blank=True)
 	job_type = models.CharField(max_length=20, choices=JobType.choices, blank=True)
-	date_applied = models.DateField(null=True, blank=True)
+	date_applied = models.DateField(default=timezone.localdate, null=True, blank=True)
 	status = models.CharField(max_length=20, choices=Status.choices, default=Status.SAVED)
 	source = models.CharField(max_length=30, choices=Source.choices, blank=True)
 	priority = models.CharField(max_length=10, choices=Priority.choices, default=Priority.MEDIUM)
