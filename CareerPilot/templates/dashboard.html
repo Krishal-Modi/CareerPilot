@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard | CareerPilot{% endblock %}
+{% block content %}
+<section class="dashboard-heading">
+    <div>
+        <p class="eyebrow">Your workspace</p>
+        <h1>Make every application count.</h1>
+        <p class="lede">Keep your search clear, current, and moving forward.</p>
+    </div>
+    <a class="button add-button" href="{% url 'application_create' %}"><span aria-hidden="true">+</span> Add job</a>
+</section>
+<section class="tracker-panel">
+    <form class="toolbar" method="get">
+        <label class="search-field"><span class="sr-only">Search applications</span><input type="search" name="q" value="{{ query }}" placeholder="Search company or role"></label>
+        <select name="status" aria-label="Filter by status">
+            <option value="">All statuses</option>
+            {% for value, label in status_choices %}<option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+        </select>
+        <button class="button button-dark" type="submit">Filter</button>
+    </form>
+    {% if applications %}
+    <div class="table-wrap"><table class="application-table"><thead><tr><th>Company</th><th>Role</th><th>Status</th><th>Applied</th><th>Priority</th><th><span class="sr-only">Actions</span></th></tr></thead><tbody>
+        {% for application in applications %}<tr><td class="company-cell">{{ application.company }}</td><td>{{ application.job_title }}{% if application.location %}<small>{{ application.location }}</small>{% endif %}</td><td><span class="status-badge status-{{ application.status }}">{{ application.get_status_display }}</span></td><td>{{ application.date_applied|date:'M j, Y'|default:'-' }}</td><td><span class="priority priority-{{ application.priority }}">{{ application.get_priority_display }}</span></td><td class="row-actions"><a href="{% url 'application_update' application.pk %}">Edit</a><form method="post" action="{% url 'application_delete' application.pk %}" onsubmit="return confirm('Delete this application?');">{% csrf_token %}<button type="submit">Delete</button></form></td></tr>{% endfor %}
+    </tbody></table></div>
+    {% else %}<div class="empty-state"><span class="empty-state-mark" aria-hidden="true">+</span><h2>No applications yet</h2><p>Add your first job to start building a clear picture of your search.</p><a class="button" href="{% url 'application_create' %}">Add your first job</a></div>{% endif %}
+    {% if applications.has_other_pages %}<nav class="pagination" aria-label="Applications pages">{% if applications.has_previous %}<a href="?q={{ query }}&status={{ status }}&page={{ applications.previous_page_number }}">Previous</a>{% endif %}<span>Page {{ applications.number }} of {{ applications.paginator.num_pages }}</span>{% if applications.has_next %}<a href="?q={{ query }}&status={{ status }}&page={{ applications.next_page_number }}">Next</a>{% endif %}</nav>{% endif %}
+</section>
+{% endblock %}

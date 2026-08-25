@@ -1,0 +1,37 @@
+from django import forms
+from django.forms import inlineformset_factory
+
+from contacts.models import Referral
+from .models import JobApplication
+
+
+class JobApplicationForm(forms.ModelForm):
+	class Meta:
+		model = JobApplication
+		exclude = ('user', 'created_at', 'updated_at')
+		widgets = {
+			'date_applied': forms.DateInput(attrs={'type': 'date'}),
+			'follow_up_date': forms.DateInput(attrs={'type': 'date'}),
+			'next_action_date': forms.DateInput(attrs={'type': 'date'}),
+			'job_description': forms.Textarea(attrs={'rows': 6}),
+			'notes': forms.Textarea(attrs={'rows': 4}),
+		}
+
+
+class ReferralForm(forms.ModelForm):
+	class Meta:
+		model = Referral
+		fields = ('name', 'email', 'contact_type')
+		widgets = {
+			'name': forms.TextInput(attrs={'placeholder': 'Contact name'}),
+			'email': forms.EmailInput(attrs={'placeholder': 'name@company.com'}),
+		}
+
+
+ReferralFormSet = inlineformset_factory(
+	JobApplication,
+	Referral,
+	form=ReferralForm,
+	extra=0,
+	can_delete=True,
+)

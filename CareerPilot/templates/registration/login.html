@@ -1,0 +1,5 @@
+{% extends 'base.html' %}
+{% block title %}Log in | CareerPilot{% endblock %}
+{% block content %}
+<section class="auth-layout"><div class="auth-story"><span class="story-mark">CP</span><p class="eyebrow">Your search, in focus</p><h1>A calmer way to find your next role.</h1><p>Track every opportunity, conversation, and next step in one thoughtful workspace.</p></div><div class="auth-panel"><p class="eyebrow">Welcome back</p><h2>Log in to CareerPilot</h2><form method="post" class="form-stack">{% csrf_token %}{{ form.as_p }}<button class="button" type="submit">Log in</button></form><p class="form-note">New here? <a href="{% url 'register' %}">Create an account</a></p></div></section>
+{% endblock %}
