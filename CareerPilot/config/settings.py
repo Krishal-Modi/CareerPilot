@@ -28,6 +28,14 @@ DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() in {'1', 'true', 'yes'}
 
 ALLOWED_HOSTS = [host.strip() for host in os.environ.get('DJANGO_ALLOWED_HOSTS', '').split(',') if host.strip()]
 
+render_hostname = os.environ.get('RENDER_EXTERNAL_HOSTNAME', '').strip()
+if render_hostname and render_hostname not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(render_hostname)
+
+for local_host in ('127.0.0.1', 'localhost'):
+    if local_host not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(local_host)
+
 
 # Application definition
 
@@ -160,5 +168,9 @@ if not DEBUG:
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
     SECURE_SSL_REDIRECT = os.environ.get('DJANGO_SECURE_SSL_REDIRECT', 'True').lower() in {'1', 'true', 'yes'}
-    csrf_origins = os.environ.get('DJANGO_CSRF_TRUSTED_ORIGINS', '')
-    CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in csrf_origins.split(',') if origin.strip()]
+    csrf_origins = [origin.strip() for origin in os.environ.get('DJANGO_CSRF_TRUSTED_ORIGINS', '').split(',') if origin.strip()]
+    if render_hostname:
+        render_origin = f'https://{render_hostname}'
+        if render_origin not in csrf_origins:
+            csrf_origins.append(render_origin)
+    CSRF_TRUSTED_ORIGINS = csrf_origins
