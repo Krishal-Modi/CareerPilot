@@ -8,8 +8,12 @@ services:
     envVars:
       - key: DJANGO_DEBUG
         value: "False"
+      - key: DJANGO_SECRET_KEY
+        sync: false
       - key: DJANGO_ALLOWED_HOSTS
         value: ".onrender.com"
+      - key: DATABASE_URL
+        sync: false
       - key: POSTGRES_SSLMODE
         value: require
       - key: DJANGO_SECURE_SSL_REDIRECT

@@ -15,6 +15,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 from urllib.parse import parse_qs
 from urllib.parse import unquote
+from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -147,6 +148,8 @@ elif os.environ.get('POSTGRES_DB'):
         }
     }
 else:
+    if not DEBUG:
+        raise ImproperlyConfigured('Production requires DATABASE_URL or POSTGRES_DB.')
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
