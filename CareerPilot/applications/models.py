@@ -7,13 +7,21 @@ class JobApplication(models.Model):
 	class Status(models.TextChoices):
 		SAVED = 'saved', 'Saved'
 		APPLIED = 'applied', 'Applied'
-		PENDING = 'pending', 'Pending'
 		ASSESSMENT = 'assessment', 'Assessment'
 		INTERVIEW = 'interview', 'Interviewed'
 		ACCEPTED = 'accepted', 'Accepted'
-		OFFER = 'offer', 'Offer'
+		OFFER = 'offer', 'Offered'
 		REJECTED = 'rejected', 'Rejected'
 		WITHDRAWN = 'withdrawn', 'Withdrawn'
+
+	VISIBLE_STATUS_CHOICES = (
+		('applied', 'Applied'),
+		('assessment', 'Assessment'),
+		('interview', 'Interviewed'),
+		('rejected', 'Rejected'),
+		('offer', 'Offered'),
+		('withdrawn', 'Withdrawn'),
+	)
 
 	class WorkType(models.TextChoices):
 		REMOTE = 'remote', 'Remote'
@@ -51,7 +59,7 @@ class JobApplication(models.Model):
 	work_type = models.CharField(max_length=20, choices=WorkType.choices, blank=True)
 	job_type = models.CharField(max_length=20, choices=JobType.choices, blank=True)
 	date_applied = models.DateField(default=timezone.localdate, null=True, blank=True)
-	status = models.CharField(max_length=20, choices=Status.choices, default=Status.SAVED)
+	status = models.CharField(max_length=20, choices=Status.choices, default=Status.APPLIED)
 	source = models.CharField(max_length=30, choices=Source.choices, blank=True)
 	priority = models.CharField(max_length=10, choices=Priority.choices, default=Priority.MEDIUM)
 	salary = models.CharField(max_length=100, blank=True)
@@ -66,7 +74,7 @@ class JobApplication(models.Model):
 	updated_at = models.DateTimeField(auto_now=True)
 
 	class Meta:
-		ordering = ['-created_at']
+		ordering = ['created_at', 'pk']
 		indexes = [
 			models.Index(fields=['user', 'status']),
 			models.Index(fields=['user', 'date_applied']),

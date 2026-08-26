@@ -1,6 +1,7 @@
 services:
   - type: web
     name: careerpilot
+    rootDir: CareerPilot
     runtime: python
     plan: free
     buildCommand: pip install -r requirements.txt && python manage.py migrate --noinput && python manage.py collectstatic --noinput
