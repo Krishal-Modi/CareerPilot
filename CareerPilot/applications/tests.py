@@ -83,6 +83,19 @@ class JobApplicationOwnershipTests(TestCase):
 			},
 		)
 
+	def test_application_form_accepts_plain_text_job_url(self):
+		form = JobApplicationForm(
+			data={
+				'company': 'Plain Text Co',
+				'job_title': 'QA Engineer',
+				'job_url': 'My success',
+				'date_applied': timezone.localdate(),
+				'status': JobApplication.Status.SAVED,
+			}
+		)
+
+		self.assertTrue(form.is_valid(), form.errors)
+
 	def test_edit_saves_multiple_referrals(self):
 		self.client.force_login(self.owner)
 		response = self.client.post(

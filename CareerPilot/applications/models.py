@@ -46,7 +46,7 @@ class JobApplication(models.Model):
 	user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='job_applications')
 	company = models.CharField(max_length=150)
 	job_title = models.CharField(max_length=150)
-	job_url = models.URLField(blank=True)
+	job_url = models.CharField(max_length=500, blank=True)
 	location = models.CharField(max_length=150, blank=True)
 	work_type = models.CharField(max_length=20, choices=WorkType.choices, blank=True)
 	job_type = models.CharField(max_length=20, choices=JobType.choices, blank=True)

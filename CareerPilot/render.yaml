@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: careerpilot
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt; python manage.py collectstatic --noinput; python manage.py migrate
+    startCommand: gunicorn config.wsgi:application
+    envVars:
+      - key: DJANGO_DEBUG
+        value: "False"
+      - key: DJANGO_ALLOWED_HOSTS
+        value: ".onrender.com"
+      - key: POSTGRES_SSLMODE
+        value: require
+      - key: DJANGO_SECURE_SSL_REDIRECT
+        value: "True"
