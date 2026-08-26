@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 import os
 from pathlib import Path
+from urllib.parse import urlparse
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,11 +27,31 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'dev-only-change-me-careerpilot
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() in {'1', 'true', 'yes'}
 
-ALLOWED_HOSTS = [host.strip() for host in os.environ.get('DJANGO_ALLOWED_HOSTS', '').split(',') if host.strip()]
+def _normalize_host(value: str) -> str:
+    host = value.strip()
+    if not host:
+        return ''
+    if '://' in host:
+        parsed = urlparse(host)
+        host = parsed.hostname or ''
+    else:
+        host = host.split('/')[0]
+        if ':' in host:
+            host = host.split(':', 1)[0]
+    return host.strip().lower()
+
+
+raw_allowed_hosts = [host for host in os.environ.get('DJANGO_ALLOWED_HOSTS', '').split(',') if host.strip()]
+ALLOWED_HOSTS = [_normalize_host(host) for host in raw_allowed_hosts]
+ALLOWED_HOSTS = [host for host in ALLOWED_HOSTS if host]
 
 render_hostname = os.environ.get('RENDER_EXTERNAL_HOSTNAME', '').strip()
+render_hostname = _normalize_host(render_hostname)
 if render_hostname and render_hostname not in ALLOWED_HOSTS:
     ALLOWED_HOSTS.append(render_hostname)
+
+if '.onrender.com' not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append('.onrender.com')
 
 for local_host in ('127.0.0.1', 'localhost'):
     if local_host not in ALLOWED_HOSTS:
