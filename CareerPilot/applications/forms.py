@@ -41,7 +41,13 @@ class ReferralForm(forms.Form):
 	name = forms.CharField(max_length=150, required=False, widget=forms.TextInput(attrs={'placeholder': 'Contact name'}))
 	email = forms.EmailField(max_length=254, required=False, widget=forms.EmailInput(attrs={'placeholder': 'name@company.com'}))
 	contact_number = forms.CharField(max_length=30, required=False)
-	contact_type = forms.ChoiceField(choices=(('linkedin', 'LinkedIn'), ('cold_email', 'Cold email')), required=False)
+	contact_type = forms.ChoiceField(choices=(
+		('linkedin', 'LinkedIn'),
+		('indeed', 'Indeed'),
+		('twitter', 'Twitter'),
+		('cold_email', 'Cold email'),
+		('other', 'Other'),
+	), required=False)
 
 
 ReferralFormSet = formset_factory(ReferralForm, extra=0, can_delete=True)

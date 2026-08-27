@@ -5,7 +5,10 @@ from django.db import models
 class Referral(models.Model):
 	class ContactType(models.TextChoices):
 		LINKEDIN = 'linkedin', 'LinkedIn'
+		INDEED = 'indeed', 'Indeed'
+		TWITTER = 'twitter', 'Twitter'
 		COLD_EMAIL = 'cold_email', 'Cold email'
+		OTHER = 'other', 'Other'
 
 	user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='referrals')
 	application = models.ForeignKey('applications.JobApplication', on_delete=models.CASCADE, related_name='referrals')

@@ -27,6 +27,18 @@ class FirebaseApplicationFormTests(SimpleTestCase):
     def test_referral_form_has_contact_number(self):
         self.assertIn('contact_number', ReferralForm.base_fields)
 
+    def test_referral_form_has_all_contact_types(self):
+        self.assertEqual(
+            list(ReferralForm.base_fields['contact_type'].choices),
+            [
+                ('linkedin', 'LinkedIn'),
+                ('indeed', 'Indeed'),
+                ('twitter', 'Twitter'),
+                ('cold_email', 'Cold email'),
+                ('other', 'Other'),
+            ],
+        )
+
     def test_application_dates_are_serialized_for_firestore(self):
         form = JobApplicationForm(data={
             'company': 'Firestore Co',
