@@ -9,7 +9,7 @@ from .forms import EmailAuthenticationForm, EmailUserCreationForm
 class FirebaseAuthenticationTests(SimpleTestCase):
     def test_authentication_forms_use_email_fields(self):
         self.assertEqual(list(EmailAuthenticationForm.base_fields), ['email', 'password'])
-        self.assertEqual(list(EmailUserCreationForm.base_fields), ['email', 'password1', 'password2'])
+        self.assertEqual(list(EmailUserCreationForm.base_fields), ['email', 'username', 'password1', 'password2'])
 
     def test_home_page_is_public(self):
         response = self.client.get(reverse('home'))
@@ -24,6 +24,7 @@ class FirebaseAuthenticationTests(SimpleTestCase):
 
         response = self.client.post(reverse('register'), {
             'email': 'new@example.com',
+            'username': 'newuser',
             'password1': 'A secure password 123!',
             'password2': 'A secure password 123!',
         })

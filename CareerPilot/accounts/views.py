@@ -47,7 +47,7 @@ def register(request):
 			form.add_error(None, str(error))
 		else:
 			try:
-				user_profile(firebase_user['localId'], firebase_user['email'])
+				user_profile(firebase_user['localId'], firebase_user['email'], form.cleaned_data['username'])
 			except FirebaseConfigurationError as error:
 				form.add_error(None, str(error))
 			else:

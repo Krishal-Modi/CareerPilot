@@ -79,13 +79,14 @@ def authenticate(email, password, register=False):
 	raise ValueError(raised.get(message, message.replace('_', ' ').capitalize()))
 
 
-def user_profile(uid, email):
+def user_profile(uid, email, username=None):
 	try:
 		document = database().collection('users').document(uid)
 		profile = document.get()
 		if not profile.exists:
-			document.set({'email': email, 'username': email.split('@')[0]})
-			return {'email': email, 'username': email.split('@')[0]}
+			profile_data = {'email': email, 'username': username or email.split('@')[0]}
+			document.set(profile_data)
+			return profile_data
 		return profile.to_dict()
 	except FirebaseConfigurationError:
 		raise
