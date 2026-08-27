@@ -1,8 +1,11 @@
 import json
+import logging
 import os
 
 import requests
 from django.conf import settings
+
+logger = logging.getLogger(__name__)
 
 
 class FirebaseConfigurationError(Exception):
@@ -34,6 +37,7 @@ def database():
 	except FirebaseConfigurationError:
 		raise
 	except Exception as error:
+		logger.exception('Firebase Firestore client initialization failed')
 		raise FirebaseConfigurationError('Firebase Firestore is not configured correctly on the server.') from error
 
 
@@ -78,4 +82,5 @@ def user_profile(uid, email):
 	except FirebaseConfigurationError:
 		raise
 	except Exception as error:
+		logger.exception('Firebase Firestore user profile operation failed')
 		raise FirebaseConfigurationError('Firebase Firestore is temporarily unavailable.') from error
