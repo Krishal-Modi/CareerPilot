@@ -9,6 +9,20 @@
     </div>
     <a class="button add-button" href="{% url 'application_create' %}"><span aria-hidden="true">+</span> Add job</a>
 </section>
+<div class="summary-modal" id="summary-modal" role="dialog" aria-modal="true" aria-labelledby="summary-title" hidden>
+    <div class="summary-backdrop" data-summary-close></div>
+    <section class="summary-panel">
+        <button class="summary-close" type="button" data-summary-close aria-label="Close application summary">&times;</button>
+        <p class="eyebrow">Your progress</p>
+        <h2 id="summary-title">Application summary</h2>
+        <div class="summary-grid">
+            <div><strong>{{ summary.total }}</strong><span>Total applications</span></div>
+            <div><strong>{{ summary.assessment }}</strong><span>Assessments</span></div>
+            <div><strong>{{ summary.interview }}</strong><span>Interviews</span></div>
+            <div><strong>{{ summary.rejected }}</strong><span>Rejections</span></div>
+        </div>
+    </section>
+</div>
 <section class="tracker-panel">
     <form class="toolbar" method="get">
         <label class="search-field"><span class="sr-only">Search applications</span><input type="search" name="q" value="{{ query }}" placeholder="Search company or role"></label>

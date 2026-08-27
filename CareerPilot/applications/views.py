@@ -36,8 +36,29 @@ def _application_sort_key(application):
     return date_applied, str(application.get('pk', ''))
 
 
-def _filtered_applications(request):
-    applications = _applications(request.user.uid)
+def _application_summary(applications):
+    statuses = [application.get('status') for application in applications]
+    return {
+        'total': len(applications),
+        'assessment': statuses.count(JobApplication.Status.ASSESSMENT),
+        'interview': statuses.count(JobApplication.Status.INTERVIEW),
+        'rejected': statuses.count(JobApplication.Status.REJECTED),
+    }
+
+
+def _csv_value(value):
+    if value is None:
+        return ''
+    if hasattr(value, 'date') and not hasattr(value, 'year'):
+        value = value.date()
+    if hasattr(value, 'isoformat'):
+        return value.isoformat()
+    return str(value)
+
+
+def _filtered_applications(request, applications=None):
+    if applications is None:
+        applications = _applications(request.user.uid)
     query = ' '.join(request.GET.get('q', '').split()).lower()
     status = request.GET.get('status', '')
     if query:
@@ -64,24 +85,27 @@ def _save_referrals(application_id, uid, formset):
 
 @login_required
 def dashboard(request):
-    applications, query, status = _filtered_applications(request)
+    all_applications = _applications(request.user.uid)
+    applications, query, status = _filtered_applications(request, all_applications)
+    summary = _application_summary(all_applications)
     sort = request.GET.get('sort', 'newest')
     applications.sort(key=_application_sort_key, reverse=sort != 'oldest')
     paginator = Paginator(applications, 8)
     page = paginator.get_page(request.GET.get('page'))
-    return render(request, 'dashboard.html', {'applications': page, 'query': query, 'status': status, 'sort': sort, 'status_choices': JobApplication.VISIBLE_STATUS_CHOICES})
+    return render(request, 'dashboard.html', {'applications': page, 'query': query, 'status': status, 'sort': sort, 'status_choices': JobApplication.VISIBLE_STATUS_CHOICES, 'summary': summary})
 
 
 @login_required
 def application_export(request):
     applications, _, _ = _filtered_applications(request)
     applications.sort(key=_application_sort_key, reverse=True)
-    response = HttpResponse(content_type='text/csv')
+    response = HttpResponse(content_type='text/csv; charset=utf-8')
     response['Content-Disposition'] = 'attachment; filename="careerpilot-applications.csv"'
+    response.write('\ufeff')
     writer = csv.writer(response)
     writer.writerow(['Date of application', 'Company name', 'Company role', 'Location', 'Application URL'])
     for application in applications:
-        writer.writerow([application.get('date_applied', ''), application.get('company', ''), application.get('job_title', ''), application.get('location', ''), application.get('job_url', '')])
+        writer.writerow([_csv_value(application.get('date_applied')), application.get('company', ''), application.get('job_title', ''), application.get('location', ''), application.get('job_url', '')])
     return response
 
 

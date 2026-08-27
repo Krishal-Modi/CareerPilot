@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 from .forms import JobApplicationForm, ReferralForm
 from .models import JobApplication
-from .views import _firestore_application_data, _filtered_applications
+from .views import _application_summary, _csv_value, _firestore_application_data, _filtered_applications
 
 
 class FirebaseApplicationFormTests(SimpleTestCase):
@@ -54,6 +54,25 @@ class FirebaseApplicationFormTests(SimpleTestCase):
         self.assertEqual(results, applications.return_value)
         self.assertEqual(query, '')
         self.assertEqual(status, '')
+
+    def test_application_summary_counts_key_statuses(self):
+        applications = [
+            {'status': JobApplication.Status.APPLIED},
+            {'status': JobApplication.Status.ASSESSMENT},
+            {'status': JobApplication.Status.INTERVIEW},
+            {'status': JobApplication.Status.INTERVIEW},
+            {'status': JobApplication.Status.REJECTED},
+        ]
+
+        self.assertEqual(_application_summary(applications), {
+            'total': 5,
+            'assessment': 1,
+            'interview': 2,
+            'rejected': 1,
+        })
+
+    def test_csv_date_value_is_readable(self):
+        self.assertEqual(_csv_value('2026-08-27'), '2026-08-27')
 
     def test_application_dates_are_serialized_for_firestore(self):
         form = JobApplicationForm(data={

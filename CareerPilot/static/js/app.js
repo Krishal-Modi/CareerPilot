@@ -1,4 +1,22 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const summaryToggle = document.querySelector('#summary-toggle');
+    const summaryModal = document.querySelector('#summary-modal');
+
+    if (summaryToggle && summaryModal) {
+        const closeSummary = () => {
+            summaryModal.hidden = true;
+            document.body.classList.remove('modal-open');
+        };
+        summaryToggle.addEventListener('click', () => {
+            summaryModal.hidden = false;
+            document.body.classList.add('modal-open');
+        });
+        summaryModal.querySelectorAll('[data-summary-close]').forEach((element) => element.addEventListener('click', closeSummary));
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && !summaryModal.hidden) closeSummary();
+        });
+    }
+
     const addButton = document.querySelector('#add-referral');
     const list = document.querySelector('#referral-list');
     const template = document.querySelector('#empty-referral');

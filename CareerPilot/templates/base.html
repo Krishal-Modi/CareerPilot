@@ -16,7 +16,7 @@
             {% if user.is_authenticated %}
             <nav class="main-nav" aria-label="Main navigation"><a class="nav-link" href="{% url 'home' %}">Home</a><a class="nav-link" href="{% url 'dashboard' %}">Applications</a><a class="nav-add" href="{% url 'application_create' %}"><span aria-hidden="true">+</span> Add job</a></nav>
                 <div class="topbar-actions">
-                    <span class="user-greeting">Hi {{ user.username }}</span>
+                    {% if request.resolver_match.url_name == 'dashboard' %}<button class="user-greeting" type="button" id="summary-toggle" aria-controls="summary-modal" aria-haspopup="dialog">Hi {{ user.username }}</button>{% else %}<span class="user-greeting">Hi {{ user.username }}</span>{% endif %}
                     <form method="post" action="{% url 'logout' %}">
                         {% csrf_token %}
                         <button class="button button-quiet" type="submit">Log out</button>
