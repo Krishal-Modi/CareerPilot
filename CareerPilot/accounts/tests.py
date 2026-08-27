@@ -1,6 +1,8 @@
 from django.test import SimpleTestCase
 from django.urls import reverse
+from unittest.mock import patch
 
+from config.firebase import FirebaseConfigurationError
 from .forms import EmailAuthenticationForm, EmailUserCreationForm
 
 
@@ -15,3 +17,16 @@ class FirebaseAuthenticationTests(SimpleTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, reverse('login'))
         self.assertContains(response, reverse('register'))
+
+    @patch('accounts.views.authenticate')
+    def test_registration_shows_firebase_configuration_error(self, authenticate):
+        authenticate.side_effect = FirebaseConfigurationError('Firebase is unavailable.')
+
+        response = self.client.post(reverse('register'), {
+            'email': 'new@example.com',
+            'password1': 'A secure password 123!',
+            'password2': 'A secure password 123!',
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Firebase is unavailable.')

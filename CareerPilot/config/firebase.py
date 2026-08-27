@@ -51,8 +51,18 @@ def authenticate(email, password, register=False):
 	except requests.RequestException as error:
 		raise FirebaseConfigurationError('Firebase authentication is temporarily unavailable.') from error
 	if response.ok:
-		return response.json()
-	message = response.json().get('error', {}).get('message', 'Firebase authentication failed.')
+		try:
+			payload = response.json()
+		except ValueError as error:
+			raise FirebaseConfigurationError('Firebase authentication returned an invalid response.') from error
+		if not isinstance(payload, dict) or not payload.get('localId'):
+			raise FirebaseConfigurationError('Firebase authentication returned an incomplete response.')
+		return payload
+	try:
+		payload = response.json()
+	except ValueError as error:
+		raise FirebaseConfigurationError('Firebase authentication returned an invalid response.') from error
+	message = payload.get('error', {}).get('message', 'Firebase authentication failed.') if isinstance(payload, dict) else 'Firebase authentication failed.'
 	raised = {'EMAIL_EXISTS': 'An account with this email already exists.', 'INVALID_LOGIN_CREDENTIALS': 'Invalid email or password.'}
 	raise ValueError(raised.get(message, message.replace('_', ' ').capitalize()))
 
