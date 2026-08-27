@@ -17,5 +17,7 @@ services:
         sync: false
       - key: FIREBASE_CREDENTIALS_JSON
         sync: false
+      - key: FIREBASE_CREDENTIALS_JSON_BASE64
+        sync: false
       - key: DJANGO_SECURE_SSL_REDIRECT
         value: "True"

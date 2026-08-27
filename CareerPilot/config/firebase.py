@@ -1,3 +1,5 @@
+import base64
+import binascii
 import json
 import logging
 import os
@@ -19,6 +21,12 @@ def _initialize():
 	if firebase_admin._apps:
 		return
 	credentials_json = os.environ.get('FIREBASE_CREDENTIALS_JSON', '').strip()
+	credentials_base64 = os.environ.get('FIREBASE_CREDENTIALS_JSON_BASE64', '').strip()
+	if credentials_base64:
+		try:
+			credentials_json = base64.b64decode(credentials_base64, validate=True).decode('utf-8')
+		except (binascii.Error, UnicodeDecodeError) as error:
+			raise FirebaseConfigurationError('Firebase credentials are invalid on the server.') from error
 	if not credentials_json:
 		raise FirebaseConfigurationError('Firebase credentials are not configured on the server.')
 	try:

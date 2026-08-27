@@ -62,7 +62,15 @@ In Render service settings, add:
 - `DJANGO_CSRF_TRUSTED_ORIGINS` = full https origins (comma-separated)
 	- Example: `https://careerpilot.onrender.com,https://www.yourdomain.com`
 - `FIREBASE_WEB_API_KEY` = Firebase Web API key
-- `FIREBASE_CREDENTIALS_JSON` = complete contents of the downloaded service-account JSON
+- `FIREBASE_CREDENTIALS_JSON_BASE64` = base64-encoded contents of the downloaded service-account JSON (recommended; use this instead of `FIREBASE_CREDENTIALS_JSON`)
+
+To create the base64 value in PowerShell without changing the JSON file:
+
+```powershell
+[Convert]::ToBase64String([IO.File]::ReadAllBytes('firebase-service-account.json'))
+```
+
+Copy the output into Render as `FIREBASE_CREDENTIALS_JSON_BASE64`. Do not commit the JSON file or the encoded value. The app also accepts the complete JSON in `FIREBASE_CREDENTIALS_JSON` if base64 is not used.
 
 ### 5. First deploy
 
