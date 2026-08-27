@@ -82,6 +82,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'config.firebase_middleware.FirebaseUserMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -148,8 +149,6 @@ elif os.environ.get('POSTGRES_DB'):
         }
     }
 else:
-    if not DEBUG:
-        raise ImproperlyConfigured('Production requires DATABASE_URL or POSTGRES_DB.')
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -214,6 +213,8 @@ LOGOUT_REDIRECT_URL = 'login'
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 14
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 SESSION_SAVE_EVERY_REQUEST = True
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+FIREBASE_WEB_API_KEY = os.environ.get('FIREBASE_WEB_API_KEY', '')
 
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

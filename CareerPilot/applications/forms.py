@@ -1,56 +1,47 @@
 from django import forms
-from django.forms import inlineformset_factory
+from django.forms import formset_factory
 from django.utils import timezone
 
-from contacts.models import Referral
 from .models import JobApplication
 
 
-class JobApplicationForm(forms.ModelForm):
+class JobApplicationForm(forms.Form):
+	company = forms.CharField(max_length=150)
+	job_title = forms.CharField(max_length=150, label='Job title')
+	job_url = forms.CharField(max_length=500, required=False, label='Application URL')
+	location = forms.CharField(max_length=150, required=False)
+	work_type = forms.ChoiceField(choices=[('', '---------')] + list(JobApplication.WorkType.choices), required=False)
+	job_type = forms.ChoiceField(choices=[('', '---------')] + list(JobApplication.JobType.choices), required=False)
+	date_applied = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), required=False)
+	status = forms.ChoiceField(choices=JobApplication.VISIBLE_STATUS_CHOICES)
+	source = forms.ChoiceField(choices=JobApplication.Source.choices, required=False)
+	follow_up_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), required=False)
+	next_action = forms.CharField(max_length=200, required=False)
+	next_action_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), required=False)
+	job_description = forms.CharField(widget=forms.Textarea(attrs={'rows': 6}), required=False)
+	notes = forms.CharField(widget=forms.Textarea(attrs={'rows': 4}), required=False)
+
 	def __init__(self, *args, **kwargs):
+		instance = kwargs.pop('instance', None)
 		super().__init__(*args, **kwargs)
-		if self.is_bound and self.data.get('status') == JobApplication.Status.SAVED:
-			self.data = self.data.copy()
-			self.data['status'] = JobApplication.Status.APPLIED
-		self.fields['status'].choices = JobApplication.VISIBLE_STATUS_CHOICES
-		if not self.instance.pk:
+		self.instance = instance
+		if instance:
+			self.initial.update(instance)
+		else:
 			self.initial.setdefault('date_applied', timezone.localdate())
 		self.initial.setdefault('source', JobApplication.Source.LINKEDIN)
-
-	class Meta:
-		model = JobApplication
-		fields = (
-			'company', 'job_title', 'job_url', 'location', 'work_type', 'job_type',
-			'date_applied', 'status', 'source', 'follow_up_date', 'next_action',
-			'next_action_date', 'job_description', 'notes',
-		)
-		widgets = {
-			'date_applied': forms.DateInput(attrs={'type': 'date'}),
-			'follow_up_date': forms.DateInput(attrs={'type': 'date'}),
-			'next_action_date': forms.DateInput(attrs={'type': 'date'}),
-			'job_description': forms.Textarea(attrs={'rows': 6}),
-			'notes': forms.Textarea(attrs={'rows': 4}),
-		}
 
 	def clean_status(self):
 		status = self.cleaned_data['status']
 		return 'applied' if status == 'saved' else status
 
 
-class ReferralForm(forms.ModelForm):
-	class Meta:
-		model = Referral
-		fields = ('name', 'email', 'contact_number', 'contact_type')
-		widgets = {
-			'name': forms.TextInput(attrs={'placeholder': 'Contact name'}),
-			'email': forms.EmailInput(attrs={'placeholder': 'name@company.com'}),
-		}
+class ReferralForm(forms.Form):
+	referral_id = forms.CharField(required=False, widget=forms.HiddenInput)
+	name = forms.CharField(max_length=150, required=False, widget=forms.TextInput(attrs={'placeholder': 'Contact name'}))
+	email = forms.EmailField(max_length=254, required=False, widget=forms.EmailInput(attrs={'placeholder': 'name@company.com'}))
+	contact_number = forms.CharField(max_length=30, required=False)
+	contact_type = forms.ChoiceField(choices=(('linkedin', 'LinkedIn'), ('cold_email', 'Cold email')), required=False)
 
 
-ReferralFormSet = inlineformset_factory(
-	JobApplication,
-	Referral,
-	form=ReferralForm,
-	extra=0,
-	can_delete=True,
-)
+ReferralFormSet = formset_factory(ReferralForm, extra=0, can_delete=True)

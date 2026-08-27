@@ -4,7 +4,7 @@ services:
     rootDir: CareerPilot
     runtime: python
     plan: free
-    buildCommand: pip install -r requirements.txt && python manage.py migrate --noinput && python manage.py collectstatic --noinput
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
     startCommand: gunicorn config.wsgi:application
     envVars:
       - key: DJANGO_DEBUG
@@ -13,9 +13,9 @@ services:
         sync: false
       - key: DJANGO_ALLOWED_HOSTS
         value: ".onrender.com"
-      - key: DATABASE_URL
+      - key: FIREBASE_WEB_API_KEY
         sync: false
-      - key: POSTGRES_SSLMODE
-        value: require
+      - key: FIREBASE_CREDENTIALS_JSON
+        sync: false
       - key: DJANGO_SECURE_SSL_REDIRECT
         value: "True"

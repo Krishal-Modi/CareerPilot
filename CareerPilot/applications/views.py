@@ -1,108 +1,119 @@
-from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator
-from django.db.models import Q
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, redirect, render
 import csv
 
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
+from django.http import HttpResponse
+from django.shortcuts import redirect, render
+
+from config.firebase import database
 from .forms import JobApplicationForm, ReferralFormSet
 from .models import JobApplication
 
 
+def _applications(uid):
+    return [dict(document.to_dict(), pk=document.id) for document in database().collection('applications').where('user_id', '==', uid).stream()]
+
+
+def _filtered_applications(request):
+    applications = _applications(request.user.uid)
+    query = request.GET.get('q', '').strip().lower()
+    status = request.GET.get('status', '')
+    if query:
+        applications = [application for application in applications if query in application.get('company', '').lower() or query in application.get('job_title', '').lower()]
+    if status:
+        applications = [application for application in applications if application.get('status') == status]
+    return applications, query, status
+
+
+def _save_referrals(application_id, uid, formset):
+    collection = database().collection('applications').document(application_id).collection('referrals')
+    for form in formset:
+        if not form.cleaned_data or not form.cleaned_data.get('name'):
+            continue
+        referral_id = form.cleaned_data.get('referral_id') or None
+        referral = {key: form.cleaned_data.get(key, '') for key in ('name', 'email', 'contact_number', 'contact_type')}
+        referral['user_id'] = uid
+        if form.cleaned_data.get('DELETE'):
+            if referral_id:
+                collection.document(referral_id).delete()
+            continue
+        (collection.document(referral_id) if referral_id else collection.document()).set(referral)
+
+
 @login_required
 def dashboard(request):
-	applications = JobApplication.objects.filter(user=request.user)
-	query = request.GET.get('q', '').strip()
-	status = request.GET.get('status', '')
-	sort = request.GET.get('sort', 'newest')
-	if query:
-		applications = applications.filter(Q(company__icontains=query) | Q(job_title__icontains=query))
-	if status:
-		applications = applications.filter(status=status)
-	if sort == 'oldest':
-		applications = applications.order_by('date_applied', 'pk')
-	else:
-		sort = 'newest'
-		applications = applications.order_by('-date_applied', '-pk')
-	paginator = Paginator(applications, 8)
-	page = paginator.get_page(request.GET.get('page'))
-	return render(request, 'dashboard.html', {'applications': page, 'query': query, 'status': status, 'sort': sort, 'status_choices': JobApplication.VISIBLE_STATUS_CHOICES})
+    applications, query, status = _filtered_applications(request)
+    sort = request.GET.get('sort', 'newest')
+    applications.sort(key=lambda item: (item.get('date_applied') or '', item.get('pk', '')), reverse=sort != 'oldest')
+    paginator = Paginator(applications, 8)
+    page = paginator.get_page(request.GET.get('page'))
+    return render(request, 'dashboard.html', {'applications': page, 'query': query, 'status': status, 'sort': sort, 'status_choices': JobApplication.VISIBLE_STATUS_CHOICES})
 
 
 @login_required
 def application_export(request):
-	applications = JobApplication.objects.filter(user=request.user)
-	query = request.GET.get('q', '').strip()
-	status = request.GET.get('status', '')
-	if query:
-		applications = applications.filter(Q(company__icontains=query) | Q(job_title__icontains=query))
-	if status:
-		applications = applications.filter(status=status)
-
-	response = HttpResponse(content_type='text/csv')
-	response['Content-Disposition'] = 'attachment; filename="careerpilot-applications.csv"'
-	writer = csv.writer(response)
-	writer.writerow(['Date of application', 'Company name', 'Company role', 'Location', 'Application URL'])
-	for application in applications.order_by('-date_applied', '-pk'):
-		writer.writerow([
-			application.date_applied.isoformat() if application.date_applied else '',
-			application.company,
-			application.job_title,
-			application.location,
-			application.job_url,
-		])
-	return response
+    applications, _, _ = _filtered_applications(request)
+    applications.sort(key=lambda item: (item.get('date_applied') or '', item.get('pk', '')), reverse=True)
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="careerpilot-applications.csv"'
+    writer = csv.writer(response)
+    writer.writerow(['Date of application', 'Company name', 'Company role', 'Location', 'Application URL'])
+    for application in applications:
+        writer.writerow([application.get('date_applied', ''), application.get('company', ''), application.get('job_title', ''), application.get('location', ''), application.get('job_url', '')])
+    return response
 
 
 @login_required
 def application_create(request):
-	form = JobApplicationForm(request.POST or None)
-	referral_formset = ReferralFormSet(request.POST or None)
-	if request.method == 'POST' and form.is_valid() and referral_formset.is_valid():
-		application = form.save(commit=False)
-		application.user = request.user
-		application.save()
-		referrals = referral_formset.save(commit=False)
-		for referral in referrals:
-			referral.application = application
-			referral.user = request.user
-			referral.save()
-		return redirect('dashboard')
-	return render(request, 'applications/application_form.html', {'form': form, 'referral_formset': referral_formset, 'page_title': 'Add a job'})
+    form = JobApplicationForm(request.POST or None)
+    referral_formset = ReferralFormSet(request.POST or None, prefix='referrals')
+    if request.method == 'POST' and form.is_valid() and referral_formset.is_valid():
+        application = dict(form.cleaned_data)
+        application['user_id'] = request.user.uid
+        document = database().collection('applications').document()
+        document.set(application)
+        _save_referrals(document.id, request.user.uid, referral_formset)
+        return redirect('dashboard')
+    return render(request, 'applications/application_form.html', {'form': form, 'referral_formset': referral_formset, 'page_title': 'Add a job'})
 
 
 @login_required
 def application_update(request, pk):
-	application = get_object_or_404(JobApplication, pk=pk, user=request.user)
-	form = JobApplicationForm(request.POST or None, instance=application)
-	referral_formset = ReferralFormSet(request.POST or None, instance=application)
-	if request.method == 'POST' and form.is_valid() and referral_formset.is_valid():
-		form.save()
-		referrals = referral_formset.save(commit=False)
-		for referral in referrals:
-			referral.user = request.user
-			referral.save()
-		for referral in referral_formset.deleted_objects:
-			referral.delete()
-		return redirect('dashboard')
-	return render(request, 'applications/application_form.html', {'form': form, 'referral_formset': referral_formset, 'page_title': 'Edit application', 'application': application})
+    document = database().collection('applications').document(pk)
+    application = document.get()
+    if not application.exists or application.to_dict().get('user_id') != request.user.uid:
+        from django.http import Http404
+        raise Http404
+    data = dict(application.to_dict())
+    referrals = [dict(item.to_dict(), referral_id=item.id) for item in document.collection('referrals').stream()]
+    form = JobApplicationForm(request.POST or None, initial=data)
+    referral_formset = ReferralFormSet(request.POST or None, initial=referrals, prefix='referrals')
+    if request.method == 'POST' and form.is_valid() and referral_formset.is_valid():
+        updated = dict(form.cleaned_data)
+        updated['user_id'] = request.user.uid
+        document.set(updated)
+        _save_referrals(pk, request.user.uid, referral_formset)
+        return redirect('dashboard')
+    return render(request, 'applications/application_form.html', {'form': form, 'referral_formset': referral_formset, 'page_title': 'Edit application'})
 
 
 @login_required
 def application_status_update(request, pk):
-	application = get_object_or_404(JobApplication, pk=pk, user=request.user)
-	if request.method == 'POST':
-		new_status = request.POST.get('status')
-		valid_statuses = {value for value, _ in JobApplication.Status.choices}
-		if new_status in valid_statuses or new_status in {'accepted'}:
-			application.status = new_status
-			application.save(update_fields=('status', 'updated_at'))
-	return redirect('dashboard')
+    document = database().collection('applications').document(pk)
+    application = document.get()
+    if application.exists and application.to_dict().get('user_id') == request.user.uid and request.method == 'POST':
+        new_status = request.POST.get('status')
+        if new_status in {value for value, _ in JobApplication.Status.choices}:
+            document.update({'status': new_status})
+    return redirect('dashboard')
 
 
 @login_required
 def application_delete(request, pk):
-	application = get_object_or_404(JobApplication, pk=pk, user=request.user)
-	if request.method == 'POST':
-		application.delete()
-	return redirect('dashboard')
+    document = database().collection('applications').document(pk)
+    application = document.get()
+    if application.exists and application.to_dict().get('user_id') == request.user.uid and request.method == 'POST':
+        for referral in document.collection('referrals').stream():
+            referral.reference.delete()
+        document.delete()
+    return redirect('dashboard')

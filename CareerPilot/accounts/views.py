@@ -2,12 +2,33 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.shortcuts import redirect, render
 
+from config.firebase import authenticate, user_profile
 from .forms import EmailAuthenticationForm, EmailUserCreationForm
 
 
 class AccountLoginView(LoginView):
 	template_name = 'registration/login.html'
-	authentication_form = EmailAuthenticationForm
+	redirect_authenticated_user = True
+
+	def get_form_kwargs(self):
+		kwargs = super().get_form_kwargs()
+		kwargs.pop('request', None)
+		return kwargs
+
+	def get_form_class(self):
+		return EmailAuthenticationForm
+
+	def form_valid(self, form):
+		try:
+			firebase_user = authenticate(form.cleaned_data['email'], form.cleaned_data['password'])
+		except ValueError as error:
+			form.add_error(None, str(error))
+			return self.form_invalid(form)
+		profile = user_profile(firebase_user['localId'], firebase_user['email'])
+		self.request.session['firebase_uid'] = firebase_user['localId']
+		self.request.session['firebase_email'] = firebase_user['email']
+		self.request.session['firebase_username'] = profile.get('username', firebase_user['email'].split('@')[0])
+		return redirect(self.get_success_url())
 
 
 def register(request):
@@ -16,13 +37,23 @@ def register(request):
 
 	form = EmailUserCreationForm(request.POST or None)
 	if request.method == 'POST' and form.is_valid():
-		form.save()
-		return redirect('login')
+		try:
+			firebase_user = authenticate(form.cleaned_data['email'], form.cleaned_data['password1'], register=True)
+		except ValueError as error:
+			form.add_error(None, str(error))
+		else:
+			user_profile(firebase_user['localId'], firebase_user['email'])
+			return redirect('login')
 	return render(request, 'registration/register.html', {'form': form})
 
 
 def home(request):
 	return render(request, 'home.html')
+
+
+def logout(request):
+	request.session.flush()
+	return redirect('login')
 
 
 @login_required
