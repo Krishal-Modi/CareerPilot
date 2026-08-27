@@ -3,6 +3,7 @@ from django.utils import timezone
 
 from .forms import JobApplicationForm, ReferralForm
 from .models import JobApplication
+from .views import _firestore_application_data
 
 
 class FirebaseApplicationFormTests(SimpleTestCase):
@@ -25,3 +26,20 @@ class FirebaseApplicationFormTests(SimpleTestCase):
 
     def test_referral_form_has_contact_number(self):
         self.assertIn('contact_number', ReferralForm.base_fields)
+
+    def test_application_dates_are_serialized_for_firestore(self):
+        form = JobApplicationForm(data={
+            'company': 'Firestore Co',
+            'job_title': 'Backend Engineer',
+            'date_applied': '2026-08-27',
+            'follow_up_date': '2026-09-03',
+            'next_action_date': '',
+            'status': JobApplication.Status.APPLIED,
+        })
+
+        self.assertTrue(form.is_valid(), form.errors)
+        application = _firestore_application_data(form.cleaned_data, 'firebase-user')
+
+        self.assertEqual(application['date_applied'], '2026-08-27')
+        self.assertEqual(application['follow_up_date'], '2026-09-03')
+        self.assertIsNone(application['next_action_date'])

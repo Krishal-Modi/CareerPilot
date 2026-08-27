@@ -10,6 +10,15 @@ from .forms import JobApplicationForm, ReferralFormSet
 from .models import JobApplication
 
 
+def _firestore_application_data(cleaned_data, uid):
+    application = dict(cleaned_data)
+    application['user_id'] = uid
+    for field_name in ('date_applied', 'follow_up_date', 'next_action_date'):
+        if application.get(field_name):
+            application[field_name] = application[field_name].isoformat()
+    return application
+
+
 def _applications(uid):
     return [dict(document.to_dict(), pk=document.id) for document in database().collection('applications').where('user_id', '==', uid).stream()]
 
@@ -68,8 +77,7 @@ def application_create(request):
     form = JobApplicationForm(request.POST or None)
     referral_formset = ReferralFormSet(request.POST or None, prefix='referrals')
     if request.method == 'POST' and form.is_valid() and referral_formset.is_valid():
-        application = dict(form.cleaned_data)
-        application['user_id'] = request.user.uid
+        application = _firestore_application_data(form.cleaned_data, request.user.uid)
         document = database().collection('applications').document()
         document.set(application)
         _save_referrals(document.id, request.user.uid, referral_formset)
@@ -89,8 +97,7 @@ def application_update(request, pk):
     form = JobApplicationForm(request.POST or None, initial=data)
     referral_formset = ReferralFormSet(request.POST or None, initial=referrals, prefix='referrals')
     if request.method == 'POST' and form.is_valid() and referral_formset.is_valid():
-        updated = dict(form.cleaned_data)
-        updated['user_id'] = request.user.uid
+        updated = _firestore_application_data(form.cleaned_data, request.user.uid)
         document.set(updated)
         _save_referrals(pk, request.user.uid, referral_formset)
         return redirect('dashboard')
