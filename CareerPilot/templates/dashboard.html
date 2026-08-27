@@ -13,14 +13,14 @@
     <form class="toolbar" method="get">
         <label class="search-field"><span class="sr-only">Search applications</span><input type="search" name="q" value="{{ query }}" placeholder="Search company or role"></label>
         <select name="status" aria-label="Filter by status">
-            <option value="">All statuses</option>
+            <option value="">All Status</option>
             {% for value, label in status_choices %}<option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
         </select>
         <select name="sort" aria-label="Sort applications">
             <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest first</option>
             <option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>Oldest first</option>
         </select>
-        <button class="button button-dark" type="submit">Filter</button>
+        <button class="button button-dark" type="submit">Search</button>
         <a class="button button-outline" href="{% url 'application_export' %}?q={{ query|urlencode }}&status={{ status|urlencode }}">Download CSV</a>
     </form>
     {% if applications %}

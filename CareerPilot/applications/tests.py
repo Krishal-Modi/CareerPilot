@@ -1,9 +1,10 @@
-from django.test import SimpleTestCase
+from django.test import RequestFactory, SimpleTestCase
 from django.utils import timezone
+from unittest.mock import patch
 
 from .forms import JobApplicationForm, ReferralForm
 from .models import JobApplication
-from .views import _firestore_application_data
+from .views import _firestore_application_data, _filtered_applications
 
 
 class FirebaseApplicationFormTests(SimpleTestCase):
@@ -38,6 +39,21 @@ class FirebaseApplicationFormTests(SimpleTestCase):
                 ('other', 'Other'),
             ],
         )
+
+    @patch('applications.views._applications')
+    def test_empty_search_returns_all_applications(self, applications):
+        applications.return_value = [
+            {'company': 'Northwind', 'job_title': 'Engineer'},
+            {'company': 'Contoso', 'job_title': 'Designer'},
+        ]
+        request = RequestFactory().get('/applications/', {'q': '   '})
+        request.user = type('User', (), {'uid': 'firebase-user'})()
+
+        results, query, status = _filtered_applications(request)
+
+        self.assertEqual(results, applications.return_value)
+        self.assertEqual(query, '')
+        self.assertEqual(status, '')
 
     def test_application_dates_are_serialized_for_firestore(self):
         form = JobApplicationForm(data={

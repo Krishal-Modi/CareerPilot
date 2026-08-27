@@ -38,7 +38,7 @@ def _application_sort_key(application):
 
 def _filtered_applications(request):
     applications = _applications(request.user.uid)
-    query = request.GET.get('q', '').strip().lower()
+    query = ' '.join(request.GET.get('q', '').split()).lower()
     status = request.GET.get('status', '')
     if query:
         applications = [application for application in applications if query in str(application.get('company', '')).lower() or query in str(application.get('job_title', '')).lower()]
