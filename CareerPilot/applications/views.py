@@ -52,8 +52,8 @@ def _csv_value(value):
     if hasattr(value, 'date') and not hasattr(value, 'year'):
         value = value.date()
     if hasattr(value, 'isoformat'):
-        return value.isoformat()
-    return str(value)
+        return f'Date: {value.isoformat()}'
+    return f'Date: {value}'
 
 
 def _filtered_applications(request, applications=None):

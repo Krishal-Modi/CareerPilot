@@ -93,3 +93,22 @@ def user_profile(uid, email, username=None):
 	except Exception as error:
 		logger.exception('Firebase Firestore user profile operation failed')
 		raise FirebaseConfigurationError('Firebase Firestore is temporarily unavailable.') from error
+
+
+def delete_account(uid):
+	try:
+		from firebase_admin import auth
+		from google.cloud.firestore_v1.base_query import FieldFilter
+
+		applications = database().collection('applications').where(filter=FieldFilter('user_id', '==', uid)).stream()
+		for application in applications:
+			for referral in application.reference.collection('referrals').stream():
+				referral.reference.delete()
+			application.reference.delete()
+		database().collection('users').document(uid).delete()
+		auth.delete_user(uid)
+	except FirebaseConfigurationError:
+		raise
+	except Exception as error:
+		logger.exception('Firebase account deletion failed')
+		raise FirebaseConfigurationError('The account could not be deleted right now.') from error

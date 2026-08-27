@@ -17,6 +17,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    if (window.location.hash === '#summary-modal' && summaryModal) {
+        summaryModal.hidden = false;
+        document.body.classList.add('modal-open');
+    }
+
     const addButton = document.querySelector('#add-referral');
     const list = document.querySelector('#referral-list');
     const template = document.querySelector('#empty-referral');

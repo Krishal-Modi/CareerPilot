@@ -2,7 +2,7 @@ from django.urls import path
 
 from applications.views import dashboard as applications_dashboard
 
-from .views import AccountLoginView, home, logout, register
+from .views import AccountLoginView, delete_account_view, home, logout, register
 
 
 urlpatterns = [
@@ -10,5 +10,6 @@ urlpatterns = [
     path('applications/', applications_dashboard, name='dashboard'),
     path('accounts/login/', AccountLoginView.as_view(), name='login'),
     path('accounts/logout/', logout, name='logout'),
+    path('accounts/delete/', delete_account_view, name='delete_account'),
     path('accounts/register/', register, name='register'),
 ]

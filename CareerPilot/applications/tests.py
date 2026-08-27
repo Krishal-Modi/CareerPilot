@@ -72,7 +72,7 @@ class FirebaseApplicationFormTests(SimpleTestCase):
         })
 
     def test_csv_date_value_is_readable(self):
-        self.assertEqual(_csv_value('2026-08-27'), '2026-08-27')
+        self.assertEqual(_csv_value('2026-08-27'), 'Date: 2026-08-27')
 
     def test_application_dates_are_serialized_for_firestore(self):
         form = JobApplicationForm(data={

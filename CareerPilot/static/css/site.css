@@ -39,8 +39,15 @@ h2 { margin: 0 0 .5rem; font-size: 1.7rem; }
 
 .topbar-actions { display: flex; align-items: center; gap: 1.25rem; }
 .user-greeting { color: var(--muted); font: .78rem Arial, sans-serif; }
-.user-greeting { padding: .35rem .5rem; background: transparent; border: 0; cursor: pointer; }
-.user-greeting:hover { color: var(--accent-dark); }
+.account-menu { position: relative; }
+.user-greeting { padding: .35rem .5rem; cursor: pointer; list-style: none; }
+.user-greeting::-webkit-details-marker { display: none; }
+.user-greeting::after { display: inline-block; margin-left: .4rem; content: '▾'; color: var(--accent-dark); }
+.account-dropdown { position: absolute; z-index: 5; top: calc(100% + .6rem); right: 0; min-width: 11rem; padding: .35rem; background: var(--panel); border: 1px solid var(--line); box-shadow: var(--shadow); }
+.account-menu-item { display: block; width: 100%; padding: .65rem .75rem; color: var(--ink); background: transparent; border: 0; cursor: pointer; font: .76rem Arial, sans-serif; text-align: left; text-decoration: none; }
+.account-menu-item:hover { color: var(--accent-dark); background: #f4f7f2; }
+.account-dropdown form { margin: 0; }
+.account-delete { color: #91433b; border-top: 1px solid var(--line); }
 .main-nav { display: flex; align-items: center; gap: 1.25rem; margin-left: auto; margin-right: 1.5rem; font: 700 .76rem Arial, sans-serif; }
 .main-nav a { display: inline-flex; align-items: center; min-height: 2.2rem; color: var(--muted); text-decoration: none; transition: color .2s ease; }
 .main-nav a:hover { color: var(--accent-dark); }

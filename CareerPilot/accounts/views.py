@@ -1,8 +1,9 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.contrib.auth.views import LoginView
 from django.shortcuts import redirect, render
 
-from config.firebase import FirebaseConfigurationError, authenticate, user_profile
+from config.firebase import FirebaseConfigurationError, authenticate, delete_account, user_profile
 from .forms import EmailAuthenticationForm, EmailUserCreationForm
 
 
@@ -61,6 +62,18 @@ def home(request):
 
 def logout(request):
 	request.session.flush()
+	return redirect('login')
+
+
+@login_required
+def delete_account_view(request):
+	if request.method == 'POST':
+		try:
+			delete_account(request.user.uid)
+		except FirebaseConfigurationError as error:
+			messages.error(request, str(error))
+			return redirect('dashboard')
+		request.session.flush()
 	return redirect('login')
 
 
