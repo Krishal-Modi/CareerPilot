@@ -68,9 +68,14 @@ def authenticate(email, password, register=False):
 
 
 def user_profile(uid, email):
-	document = database().collection('users').document(uid)
-	profile = document.get()
-	if not profile.exists:
-		document.set({'email': email, 'username': email.split('@')[0]})
-		return {'email': email, 'username': email.split('@')[0]}
-	return profile.to_dict()
+	try:
+		document = database().collection('users').document(uid)
+		profile = document.get()
+		if not profile.exists:
+			document.set({'email': email, 'username': email.split('@')[0]})
+			return {'email': email, 'username': email.split('@')[0]}
+		return profile.to_dict()
+	except FirebaseConfigurationError:
+		raise
+	except Exception as error:
+		raise FirebaseConfigurationError('Firebase Firestore is temporarily unavailable.') from error

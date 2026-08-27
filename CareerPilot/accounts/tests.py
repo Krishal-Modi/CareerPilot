@@ -30,3 +30,17 @@ class FirebaseAuthenticationTests(SimpleTestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Firebase is unavailable.')
+
+    @patch('accounts.views.user_profile')
+    @patch('accounts.views.authenticate')
+    def test_login_shows_firestore_configuration_error(self, authenticate, user_profile):
+        authenticate.return_value = {'localId': 'firebase-user', 'email': 'new@example.com'}
+        user_profile.side_effect = FirebaseConfigurationError('Firebase Firestore is unavailable.')
+
+        response = self.client.post(reverse('login'), {
+            'email': 'new@example.com',
+            'password': 'A secure password 123!',
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Firebase Firestore is unavailable.')
