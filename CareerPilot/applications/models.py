@@ -60,7 +60,7 @@ class JobApplication(models.Model):
 	job_type = models.CharField(max_length=20, choices=JobType.choices, blank=True)
 	date_applied = models.DateField(default=timezone.localdate, null=True, blank=True)
 	status = models.CharField(max_length=20, choices=Status.choices, default=Status.APPLIED)
-	source = models.CharField(max_length=30, choices=Source.choices, blank=True)
+	source = models.CharField(max_length=30, choices=Source.choices, default=Source.LINKEDIN, blank=True)
 	priority = models.CharField(max_length=10, choices=Priority.choices, default=Priority.MEDIUM)
 	salary = models.CharField(max_length=100, blank=True)
 	follow_up_date = models.DateField(null=True, blank=True)

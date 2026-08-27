@@ -1,7 +1,9 @@
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+import csv
 
 from .forms import JobApplicationForm, ReferralFormSet
 from .models import JobApplication
@@ -12,13 +14,44 @@ def dashboard(request):
 	applications = JobApplication.objects.filter(user=request.user)
 	query = request.GET.get('q', '').strip()
 	status = request.GET.get('status', '')
+	sort = request.GET.get('sort', 'newest')
 	if query:
 		applications = applications.filter(Q(company__icontains=query) | Q(job_title__icontains=query))
 	if status:
 		applications = applications.filter(status=status)
+	if sort == 'oldest':
+		applications = applications.order_by('date_applied', 'pk')
+	else:
+		sort = 'newest'
+		applications = applications.order_by('-date_applied', '-pk')
 	paginator = Paginator(applications, 8)
 	page = paginator.get_page(request.GET.get('page'))
-	return render(request, 'dashboard.html', {'applications': page, 'query': query, 'status': status, 'status_choices': JobApplication.VISIBLE_STATUS_CHOICES})
+	return render(request, 'dashboard.html', {'applications': page, 'query': query, 'status': status, 'sort': sort, 'status_choices': JobApplication.VISIBLE_STATUS_CHOICES})
+
+
+@login_required
+def application_export(request):
+	applications = JobApplication.objects.filter(user=request.user)
+	query = request.GET.get('q', '').strip()
+	status = request.GET.get('status', '')
+	if query:
+		applications = applications.filter(Q(company__icontains=query) | Q(job_title__icontains=query))
+	if status:
+		applications = applications.filter(status=status)
+
+	response = HttpResponse(content_type='text/csv')
+	response['Content-Disposition'] = 'attachment; filename="careerpilot-applications.csv"'
+	writer = csv.writer(response)
+	writer.writerow(['Date of application', 'Company name', 'Company role', 'Location', 'Application URL'])
+	for application in applications.order_by('-date_applied', '-pk'):
+		writer.writerow([
+			application.date_applied or '',
+			application.company,
+			application.job_title,
+			application.location,
+			application.job_url,
+		])
+	return response
 
 
 @login_required

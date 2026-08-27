@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.utils import timezone
+from datetime import timedelta
 
 from .forms import JobApplicationForm
 from .models import JobApplication
@@ -74,6 +75,7 @@ class JobApplicationOwnershipTests(TestCase):
 		form = JobApplicationForm()
 
 		self.assertEqual(form.initial['date_applied'], timezone.localdate())
+		self.assertEqual(form.initial['source'], JobApplication.Source.LINKEDIN)
 		self.assertEqual(
 			set(form.fields),
 			{
@@ -120,3 +122,43 @@ class JobApplicationOwnershipTests(TestCase):
 
 		self.assertRedirects(response, reverse('dashboard'))
 		self.assertEqual(Referral.objects.filter(application=self.application, user=self.owner).count(), 2)
+
+	def test_dashboard_sorts_by_application_date(self):
+		older = JobApplication.objects.create(
+			user=self.owner,
+			company='Older Co',
+			job_title='Older role',
+			date_applied=timezone.localdate() - timedelta(days=2),
+		)
+		newer = JobApplication.objects.create(
+			user=self.owner,
+			company='Newer Co',
+			job_title='Newer role',
+			date_applied=timezone.localdate(),
+		)
+		self.client.force_login(self.owner)
+
+		newest_response = self.client.get(reverse('dashboard'))
+		oldest_response = self.client.get(reverse('dashboard'), {'sort': 'oldest'})
+
+		self.assertEqual(list(newest_response.context['applications'].object_list), [newer, self.application, older])
+		self.assertEqual(list(oldest_response.context['applications'].object_list), [older, self.application, newer])
+
+	def test_export_contains_only_requested_columns_and_owned_applications(self):
+		JobApplication.objects.create(
+			user=self.owner,
+			company='Export Co',
+			job_title='Product role',
+			location='Remote',
+			job_url='https://example.com/job',
+		)
+		JobApplication.objects.create(user=self.other_user, company='Private Co', job_title='Private role')
+		self.client.force_login(self.owner)
+
+		response = self.client.get(reverse('application_export'))
+
+		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response['Content-Disposition'], 'attachment; filename="careerpilot-applications.csv"')
+		self.assertIn('Date of application,Company name,Company role,Location,Application URL', response.content.decode())
+		self.assertIn('Export Co,Product role,Remote,https://example.com/job', response.content.decode())
+		self.assertNotIn('Private Co', response.content.decode())

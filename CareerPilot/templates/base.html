@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}CareerPilot{% endblock %}</title>
+    <link rel="icon" href="{% static 'favicon.svg' %}" type="image/svg+xml">
     <link rel="stylesheet" href="{% static 'css/site.css' %}">
     <script src="{% static 'js/app.js' %}" defer></script>
 </head>
@@ -15,7 +16,7 @@
             {% if user.is_authenticated %}
             <nav class="main-nav" aria-label="Main navigation"><a class="nav-link" href="{% url 'home' %}">Home</a><a class="nav-link" href="{% url 'dashboard' %}">Applications</a><a class="nav-add" href="{% url 'application_create' %}"><span aria-hidden="true">+</span> Add job</a></nav>
                 <div class="topbar-actions">
-                    <span class="user-email">{{ user.email }}</span>
+                    <span class="user-greeting">Hi {{ user.username }}</span>
                     <form method="post" action="{% url 'logout' %}">
                         {% csrf_token %}
                         <button class="button button-quiet" type="submit">Log out</button>

@@ -15,6 +15,7 @@ class JobApplicationForm(forms.ModelForm):
 		self.fields['status'].choices = JobApplication.VISIBLE_STATUS_CHOICES
 		if not self.instance.pk:
 			self.initial.setdefault('date_applied', timezone.localdate())
+		self.initial.setdefault('source', JobApplication.Source.LINKEDIN)
 
 	class Meta:
 		model = JobApplication
@@ -39,7 +40,7 @@ class JobApplicationForm(forms.ModelForm):
 class ReferralForm(forms.ModelForm):
 	class Meta:
 		model = Referral
-		fields = ('name', 'email', 'contact_type')
+		fields = ('name', 'email', 'contact_number', 'contact_type')
 		widgets = {
 			'name': forms.TextInput(attrs={'placeholder': 'Contact name'}),
 			'email': forms.EmailInput(attrs={'placeholder': 'name@company.com'}),

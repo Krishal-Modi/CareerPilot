@@ -11,6 +11,7 @@ class Referral(models.Model):
 	application = models.ForeignKey('applications.JobApplication', on_delete=models.CASCADE, related_name='referrals')
 	name = models.CharField(max_length=150)
 	email = models.EmailField(max_length=254, blank=True)
+	contact_number = models.CharField(max_length=30, blank=True)
 	contact_type = models.CharField(max_length=20, choices=ContactType.choices, default=ContactType.LINKEDIN)
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
