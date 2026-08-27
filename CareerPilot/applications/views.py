@@ -45,7 +45,7 @@ def application_export(request):
 	writer.writerow(['Date of application', 'Company name', 'Company role', 'Location', 'Application URL'])
 	for application in applications.order_by('-date_applied', '-pk'):
 		writer.writerow([
-			application.date_applied or '',
+			application.date_applied.isoformat() if application.date_applied else '',
 			application.company,
 			application.job_title,
 			application.location,

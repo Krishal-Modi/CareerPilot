@@ -160,5 +160,6 @@ class JobApplicationOwnershipTests(TestCase):
 		self.assertEqual(response.status_code, 200)
 		self.assertEqual(response['Content-Disposition'], 'attachment; filename="careerpilot-applications.csv"')
 		self.assertIn('Date of application,Company name,Company role,Location,Application URL', response.content.decode())
+		self.assertIn(f'{timezone.localdate().isoformat()},Export Co,Product role', response.content.decode())
 		self.assertIn('Export Co,Product role,Remote,https://example.com/job', response.content.decode())
 		self.assertNotIn('Private Co', response.content.decode())
