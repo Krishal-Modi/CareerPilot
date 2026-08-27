@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.shortcuts import redirect, render
 
-from config.firebase import authenticate, user_profile
+from config.firebase import FirebaseConfigurationError, authenticate, user_profile
 from .forms import EmailAuthenticationForm, EmailUserCreationForm
 
 
@@ -21,10 +21,14 @@ class AccountLoginView(LoginView):
 	def form_valid(self, form):
 		try:
 			firebase_user = authenticate(form.cleaned_data['email'], form.cleaned_data['password'])
-		except ValueError as error:
+		except (ValueError, FirebaseConfigurationError) as error:
 			form.add_error(None, str(error))
 			return self.form_invalid(form)
-		profile = user_profile(firebase_user['localId'], firebase_user['email'])
+		try:
+			profile = user_profile(firebase_user['localId'], firebase_user['email'])
+		except FirebaseConfigurationError as error:
+			form.add_error(None, str(error))
+			return self.form_invalid(form)
 		self.request.session['firebase_uid'] = firebase_user['localId']
 		self.request.session['firebase_email'] = firebase_user['email']
 		self.request.session['firebase_username'] = profile.get('username', firebase_user['email'].split('@')[0])
@@ -39,11 +43,15 @@ def register(request):
 	if request.method == 'POST' and form.is_valid():
 		try:
 			firebase_user = authenticate(form.cleaned_data['email'], form.cleaned_data['password1'], register=True)
-		except ValueError as error:
+		except (ValueError, FirebaseConfigurationError) as error:
 			form.add_error(None, str(error))
 		else:
-			user_profile(firebase_user['localId'], firebase_user['email'])
-			return redirect('login')
+			try:
+				user_profile(firebase_user['localId'], firebase_user['email'])
+			except FirebaseConfigurationError as error:
+				form.add_error(None, str(error))
+			else:
+				return redirect('login')
 	return render(request, 'registration/register.html', {'form': form})
 
 

@@ -5,6 +5,10 @@ import requests
 from django.conf import settings
 
 
+class FirebaseConfigurationError(Exception):
+	pass
+
+
 def _initialize():
 	import firebase_admin
 	from firebase_admin import credentials
@@ -12,27 +16,40 @@ def _initialize():
 	if firebase_admin._apps:
 		return
 	credentials_json = os.environ.get('FIREBASE_CREDENTIALS_JSON', '').strip()
-	if credentials_json:
-		firebase_admin.initialize_app(credentials.Certificate(json.loads(credentials_json)))
-	else:
-		firebase_admin.initialize_app()
+	if not credentials_json:
+		raise FirebaseConfigurationError('Firebase credentials are not configured on the server.')
+	try:
+		service_account = json.loads(credentials_json)
+		firebase_admin.initialize_app(credentials.Certificate(service_account))
+	except (ValueError, TypeError, json.JSONDecodeError) as error:
+		raise FirebaseConfigurationError('Firebase credentials are invalid on the server.') from error
 
 
 def database():
 	from firebase_admin import firestore
 
-	_initialize()
-	return firestore.client()
+	try:
+		_initialize()
+		return firestore.client()
+	except FirebaseConfigurationError:
+		raise
+	except Exception as error:
+		raise FirebaseConfigurationError('Firebase Firestore is not configured correctly on the server.') from error
 
 
 def authenticate(email, password, register=False):
 	api_key = settings.FIREBASE_WEB_API_KEY
+	if not api_key:
+		raise FirebaseConfigurationError('Firebase Web API key is not configured on the server.')
 	endpoint = 'accounts:signUp' if register else 'accounts:signInWithPassword'
-	response = requests.post(
-		f'https://identitytoolkit.googleapis.com/v1/{endpoint}?key={api_key}',
-		json={'email': email, 'password': password, 'returnSecureToken': True},
-		timeout=10,
-	)
+	try:
+		response = requests.post(
+			f'https://identitytoolkit.googleapis.com/v1/{endpoint}?key={api_key}',
+			json={'email': email.strip().lower(), 'password': password, 'returnSecureToken': True},
+			timeout=10,
+		)
+	except requests.RequestException as error:
+		raise FirebaseConfigurationError('Firebase authentication is temporarily unavailable.') from error
 	if response.ok:
 		return response.json()
 	message = response.json().get('error', {}).get('message', 'Firebase authentication failed.')
@@ -42,6 +59,8 @@ def authenticate(email, password, register=False):
 
 def user_profile(uid, email):
 	document = database().collection('users').document(uid)
-	if not document.get().exists:
+	profile = document.get()
+	if not profile.exists:
 		document.set({'email': email, 'username': email.split('@')[0]})
-	return document.get().to_dict()
+		return {'email': email, 'username': email.split('@')[0]}
+	return profile.to_dict()
