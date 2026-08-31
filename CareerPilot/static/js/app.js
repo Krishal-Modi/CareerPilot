@@ -1,4 +1,40 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Hamburger Menu Toggle
+    const menuToggle = document.querySelector('#menu-toggle');
+    const mainMenu = document.querySelector('#main-menu');
+
+    if (menuToggle && mainMenu) {
+        menuToggle.addEventListener('click', () => {
+            const isOpen = mainMenu.classList.toggle('active');
+            menuToggle.setAttribute('aria-expanded', isOpen);
+        });
+
+        // Close menu when a link is clicked
+        mainMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                mainMenu.classList.remove('active');
+                menuToggle.setAttribute('aria-expanded', 'false');
+            });
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!event.target.closest('.topbar')) {
+                mainMenu.classList.remove('active');
+                menuToggle.setAttribute('aria-expanded', 'false');
+            }
+        });
+
+        // Close menu on Escape key
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && mainMenu.classList.contains('active')) {
+                mainMenu.classList.remove('active');
+                menuToggle.setAttribute('aria-expanded', 'false');
+            }
+        });
+    }
+
+    // Summary Modal
     const summaryToggle = document.querySelector('#summary-toggle');
     const summaryModal = document.querySelector('#summary-modal');
 
@@ -22,6 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.add('modal-open');
     }
 
+    // Referral List Management
     const addButton = document.querySelector('#add-referral');
     const list = document.querySelector('#referral-list');
     const template = document.querySelector('#empty-referral');

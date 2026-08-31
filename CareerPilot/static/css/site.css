@@ -156,4 +156,242 @@ h2 { margin: 0 0 .5rem; font-size: 1.7rem; }
 .hero-note { display: flex; align-items: center; gap: .7rem; width: max-content; max-width: 90%; padding: .9rem 1.1rem; margin: -1rem 0 0 -1rem; color: #fff; background: var(--ink); box-shadow: .7rem .7rem 0 var(--soft-accent); font: .7rem/1.45 Arial, sans-serif; }.hero-note > span:first-child { color: var(--soft-accent); font-size: 1.2rem; }.hero-note strong { color: #fff; }
 .home-benefits { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; padding: 2rem 0 4rem; border-top: 1px solid var(--line); }.home-benefits article { padding-right: 2rem; border-right: 1px solid var(--line); }.home-benefits article:last-child { border-right: 0; }.benefit-number { color: var(--accent-dark); font: 700 .7rem Arial, sans-serif; letter-spacing: .1em; }.home-benefits h2 { margin-top: 1rem; font-size: 1.35rem; }.home-benefits p { max-width: 18rem; margin: 0; color: var(--muted); font: .85rem/1.6 Arial, sans-serif; }
 @media (max-width: 900px) { .home-hero { gap: 3rem; } }
-@media (max-width: 700px) { .topbar { flex-wrap: wrap; gap: .8rem; } .main-nav { display: flex; flex: 1 1 100%; justify-content: flex-start; gap: .75rem; order: 3; margin: 0; overflow-x: auto; padding-top: .25rem; } .main-nav a { white-space: nowrap; } .topbar-actions { margin-left: auto; } .dashboard-heading { display: block; } .add-button { margin-top: 1.2rem; } .toolbar { flex-wrap: wrap; } .toolbar select, .toolbar .button { width: 100%; } .field-grid { grid-template-columns: 1fr; } .field-wide { grid-column: auto; } .auth-layout { grid-template-columns: 1fr; min-height: auto; } .auth-story { min-height: 17rem; } .referral-row { grid-template-columns: 1fr; align-items: stretch; } .referral-row .remove-referral { padding: .4rem 0; text-align: left; } .section-heading { align-items: flex-start; flex-direction: column; } .home-hero { display: block; min-height: auto; padding: 2rem 0 3rem; } .hero-copy h1 { font-size: clamp(2.8rem, 14vw, 4.3rem); } .hero-visual { margin-top: 3rem; padding-left: 0; } .hero-visual::before { right: -1rem; width: 90%; } .preview-window { transform: rotate(1deg); } .home-benefits { grid-template-columns: 1fr; gap: 1.5rem; }.home-benefits article { padding: 0 0 1.5rem; border-right: 0; border-bottom: 1px solid var(--line); }.home-benefits article:last-child { border-bottom: 0; } .public-nav { display: flex; gap: .75rem; margin: 0; font-size: .72rem; } .public-nav a:first-child { display: inline-block; } }
+/* Hamburger Menu Styles */
+.hamburger { display: none; flex-direction: column; justify-content: center; align-items: center; width: 2.5rem; height: 2.5rem; padding: 0; background: transparent; border: 0; cursor: pointer; gap: .35rem; }
+.hamburger-line { width: 1.5rem; height: 0.2rem; background: var(--ink); border-radius: 2px; transition: all 0.3s ease; transform-origin: center; }
+.hamburger[aria-expanded="true"] .hamburger-line:nth-child(1) { transform: rotate(45deg) translateY(0.55rem); }
+.hamburger[aria-expanded="true"] .hamburger-line:nth-child(2) { opacity: 0; }
+.hamburger[aria-expanded="true"] .hamburger-line:nth-child(3) { transform: rotate(-45deg) translateY(-0.55rem); }
+
+@media (max-width: 900px) {
+	.hamburger { display: flex; }
+	.brand-text { display: none; }
+	.brand { font-size: 1.1rem; gap: .3rem; }
+	.topbar { flex-wrap: wrap; gap: .8rem; padding: 0.75rem clamp(0.75rem, 4vw, 2rem); }
+	.main-nav { 
+		display: none;
+		position: fixed;
+		top: 3.5rem;
+		left: 0;
+		right: 0;
+		width: 100%;
+		flex-direction: column;
+		justify-content: flex-start;
+		gap: 0;
+		margin: 0;
+		padding: 1rem;
+		background: rgba(255, 255, 255, 0.95);
+		border-bottom: 1px solid var(--line);
+		box-shadow: 0 2rem 3rem rgba(23, 34, 31, 0.1);
+		z-index: 100;
+		max-height: calc(100vh - 3.5rem);
+		overflow-y: auto;
+		backdrop-filter: blur(8px);
+	}
+	.main-nav.active { display: flex; }
+	.main-nav a { 
+		width: 100%;
+		min-height: 2.5rem;
+		padding: 0.75rem 1rem;
+		border-radius: 4px;
+		margin: 0.25rem 0;
+		font-size: 0.85rem;
+	}
+	.main-nav a:hover { background: #f4f7f2; }
+	.nav-add {
+		background: var(--accent);
+		color: #fff !important;
+		text-align: center;
+		padding: 0.65rem 1rem;
+		margin-top: 0.5rem;
+	}
+	.nav-add:hover { background: var(--accent-dark); }
+	.topbar-actions { 
+		margin-left: 0;
+		width: 100%;
+		order: 3;
+	}
+	.account-dropdown { right: auto; left: 0; }
+	.dashboard-heading { display: block; }
+	.add-button { margin-top: 1.2rem; }
+	.toolbar { flex-wrap: wrap; gap: 0.5rem; }
+	.toolbar input { min-width: 100%; }
+	.toolbar select, .toolbar .button { flex: 1 1 calc(50% - 0.25rem); min-width: 150px; }
+	.field-grid { grid-template-columns: 1fr; }
+	.field-wide { grid-column: auto; }
+	.auth-layout { grid-template-columns: 1fr; min-height: auto; }
+	.auth-story { min-height: 17rem; }
+	.referral-row { grid-template-columns: 1fr; align-items: stretch; }
+	.referral-row .remove-referral { padding: .4rem 0; text-align: left; }
+	.section-heading { align-items: flex-start; flex-direction: column; }
+	.home-hero { display: block; min-height: auto; padding: 2rem 0 3rem; }
+	.hero-copy h1 { font-size: clamp(2.8rem, 14vw, 4.3rem); }
+	.hero-visual { margin-top: 3rem; padding-left: 0; }
+	.hero-visual::before { right: -1rem; width: 90%; }
+	.preview-window { transform: rotate(1deg); }
+	.home-benefits { grid-template-columns: 1fr; gap: 1.5rem; }
+	.home-benefits article { padding: 0 0 1.5rem; border-right: 0; border-bottom: 1px solid var(--line); }
+	.home-benefits article:last-child { border-bottom: 0; }
+	.public-nav { display: flex; gap: .75rem; margin: 0; font-size: .72rem; }
+	.public-nav a:first-child { display: inline-block; }
+}
+
+/* Mobile Table Styling - Card Layout */
+@media (max-width: 768px) {
+	.table-wrap { overflow-x: visible; }
+	.application-table { min-width: 100%; }
+	.application-table thead { display: none; }
+	.application-table tbody { display: flex; flex-direction: column; gap: 1rem; }
+	.application-table tr { 
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 0.75rem;
+		padding: 1.25rem;
+		background: var(--panel);
+		border: 1px solid var(--line);
+		border-radius: 8px;
+		box-shadow: 0 0.5rem 1.5rem rgba(23, 34, 31, 0.06);
+	}
+	.application-table tr:hover td { background: transparent; }
+	.application-table td { 
+		padding: 0;
+		border-top: 0;
+		display: grid;
+		grid-template-columns: 6rem 1fr;
+		gap: 1rem;
+		align-items: center;
+	}
+	.application-table td::before {
+		content: attr(data-label);
+		font-weight: 700;
+		font-size: 0.7rem;
+		color: var(--muted);
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+	}
+	.serial-cell { width: auto; grid-column: 1; }
+	.serial-cell::before { content: '#'; }
+	.company-cell::before { content: 'Company'; }
+	.location-cell::before { content: 'Location'; }
+	.row-actions { flex-wrap: wrap; gap: 0.5rem; justify-content: flex-start; }
+	.row-actions a, .row-actions button { 
+		flex: 1 1 calc(50% - 0.25rem);
+		min-width: 100px;
+		padding: 0.5rem 0.75rem;
+		font-size: 0.7rem;
+	}
+	.pagination { flex-wrap: wrap; gap: 0.5rem; font-size: 0.75rem; }
+	.pagination a, .pagination span { flex: 1 1 calc(50% - 0.25rem); text-align: center; }
+}
+
+@media (max-width: 600px) {
+	.content { width: min(100% - 1.5rem, 74rem); padding-top: 2.5rem; }
+	.empty-state { margin-top: 2.5rem; padding: 2rem 1.25rem; }
+	.topbar { padding: 0.65rem clamp(0.5rem, 3vw, 1rem); }
+	.brand { font-size: 1rem; gap: .25rem; }
+	.brand-mark { width: 1.5rem; height: 1.5rem; font-size: 0.7rem; }
+	.main-nav a { padding: 0.6rem 0.75rem; font-size: 0.8rem; }
+	.summary-panel { padding: 1.5rem 1rem; }
+	.summary-grid { grid-template-columns: 1fr; gap: 0.5rem; }
+	.summary-grid div { padding: 0.75rem; }
+	.summary-grid strong { font-size: 1.5rem; }
+	.summary-grid span { font-size: 0.65rem; }
+	.toolbar { padding: 0.75rem; }
+	.toolbar input, .toolbar select, .toolbar .button { 
+		padding: 0.6rem 0.7rem;
+		font-size: 0.8rem;
+	}
+	.application-table td { grid-template-columns: 5rem 1fr; gap: 0.5rem; font-size: 0.8rem; }
+	.application-table td::before { font-size: 0.65rem; }
+	.row-actions a, .row-actions button { 
+		padding: 0.4rem 0.5rem;
+		font-size: 0.65rem;
+		min-height: 1.8rem;
+	}
+	.job-form { padding: 1rem 1.25rem; }
+	.form-section { padding: 0 0 1.5rem; margin-bottom: 1.5rem; }
+	.form-section h2 { font-size: 1.1rem; }
+	.field label { font-size: 0.68rem; }
+	.field input, .field select, .field textarea { padding: 0.6rem 0.7rem; font-size: 0.85rem; }
+	.auth-panel { padding: 1.5rem 1.25rem; }
+	.auth-panel h2 { font-size: clamp(1.5rem, 5vw, 2rem); }
+	.form-actions { flex-wrap: wrap; gap: 0.75rem; justify-content: center; }
+	.form-actions .button, .form-actions .button-quiet { 
+		flex: 1 1 calc(50% - 0.375rem);
+		min-width: 120px;
+		padding: 0.6rem 0.75rem;
+		font-size: 0.8rem;
+	}
+	.dashboard-heading h1 { font-size: clamp(1.8rem, 6vw, 2.5rem); }
+	.hero-note { flex-direction: column; align-items: flex-start; margin: -0.75rem 0 0 -0.75rem; }
+	.hero-actions { flex-direction: column; gap: 1rem; }
+	.button-large { width: 100%; text-align: center; padding: 0.85rem 1rem; }
+}
+
+@media (max-width: 480px) {
+	.content { width: min(100% - 1rem, 100%); }
+	.topbar { padding: 0.5rem clamp(0.5rem, 2vw, 0.75rem); }
+	.brand { font-size: 0.9rem; }
+	.brand-mark { width: 1.25rem; height: 1.25rem; font-size: 0.6rem; }
+	.hamburger { width: 2.2rem; height: 2.2rem; }
+	.main-nav { top: 3rem; padding: 0.75rem; }
+	.main-nav a { padding: 0.5rem 0.6rem; font-size: 0.75rem; }
+	.topbar-actions { min-width: 100%; padding-top: 0.5rem; border-top: 1px solid var(--line); }
+	.user-greeting { font-size: 0.7rem; }
+	.account-dropdown { min-width: 10rem; }
+	.account-menu-item { padding: 0.5rem 0.6rem; font-size: 0.7rem; }
+	.summary-panel { padding: 1.25rem 1rem; }
+	h1 { font-size: clamp(1.6rem, 5vw, 2.5rem); }
+	h2 { font-size: 1.3rem; }
+	.eyebrow { font-size: 0.65rem; }
+	.toolbar { padding: 0.5rem; gap: 0.4rem; }
+	.toolbar input, .toolbar select, .toolbar .button { 
+		padding: 0.5rem 0.6rem;
+		font-size: 0.75rem;
+	}
+	.application-table td { grid-template-columns: 4rem 1fr; gap: 0.4rem; font-size: 0.75rem; }
+	.application-table td::before { font-size: 0.6rem; }
+	.status-form select { min-width: 6rem; padding: 0.35rem 1.5rem 0.35rem 0.4rem; font-size: 0.7rem; }
+	.row-actions { gap: 0.3rem; }
+	.row-actions a, .row-actions button { 
+		padding: 0.35rem 0.4rem;
+		font-size: 0.6rem;
+		min-height: 1.6rem;
+		flex: 1 1 calc(50% - 0.15rem);
+		min-width: 70px;
+	}
+	.job-form { padding: 0.75rem 1rem; }
+	.form-section { padding: 0 0 1.25rem; margin-bottom: 1.25rem; }
+	.form-section h2 { font-size: 1rem; }
+	.field label { font-size: 0.65rem; }
+	.field input, .field select, .field textarea { padding: 0.5rem 0.6rem; font-size: 0.8rem; }
+	.form-stack input { padding: 0.6rem; font-size: 0.8rem; }
+	.button { padding: 0.6rem 0.85rem; font-size: 0.75rem; }
+	.auth-panel { padding: 1.25rem 1rem; }
+	.form-actions .button, .form-actions .button-quiet { flex: 1 1 calc(50% - 0.375rem); padding: 0.5rem 0.6rem; font-size: 0.75rem; }
+	.pagination { gap: 0.3rem; }
+	.pagination a, .pagination span { font-size: 0.7rem; }
+	.back-link { font-size: 0.75rem; margin-bottom: 1.5rem; }
+}
+
+/* Improved Responsive Form */
+.form-stack { width: 100%; }
+.form-stack p { gap: 0.3rem; margin: 0 0 0.85rem; }
+
+/* Responsive List Improvements */
+.referral-row { 
+	display: grid;
+	gap: 0.75rem;
+	margin-top: 0.75rem;
+}
+
+@media (max-width: 768px) {
+	.referral-row { 
+		grid-template-columns: 1fr;
+		padding: 1rem;
+		gap: 0.75rem;
+	}
+	.referral-row .field { margin: 0; }
+	.referral-row .field label { margin-bottom: 0.3rem; }
+	.referral-row input, .referral-row select { padding: 0.6rem; font-size: 0.85rem; }
+}

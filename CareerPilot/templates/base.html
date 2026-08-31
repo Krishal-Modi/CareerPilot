@@ -12,22 +12,39 @@
 <body>
     <div class="shell">
         <header class="topbar">
-            <a class="brand" href="{% url 'home' %}"><span class="brand-mark" aria-hidden="true">C</span>CareerPilot</a>
+            <a class="brand" href="{% url 'home' %}"><span class="brand-mark" aria-hidden="true">C</span><span class="brand-text">CareerPilot</span></a>
             {% if user.is_authenticated %}
-            <nav class="main-nav" aria-label="Main navigation"><a class="nav-link" href="{% url 'home' %}">Home</a><a class="nav-link" href="{% url 'dashboard' %}">Applications</a><a class="nav-add" href="{% url 'application_create' %}"><span aria-hidden="true">+</span> Add job</a></nav>
-                <div class="topbar-actions">
-                    <details class="account-menu">
-                        <summary class="user-greeting">Hi {{ user.username }}</summary>
-                        <div class="account-dropdown">
-                            {% if request.resolver_match.url_name == 'dashboard' %}<button class="account-menu-item" type="button" id="summary-toggle" aria-controls="summary-modal" aria-haspopup="dialog">My status</button>{% else %}<a class="account-menu-item" href="{% url 'dashboard' %}#summary-modal">My status</a>{% endif %}
-                            <a class="account-menu-item" href="{% url 'application_export' %}">Download CSV</a>
-                            <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="account-menu-item" type="submit">Log out</button></form>
-                            <form method="post" action="{% url 'delete_account' %}" onsubmit="return confirm('Delete your account and all applications permanently?');">{% csrf_token %}<button class="account-menu-item account-delete" type="submit">Delete account</button></form>
-                        </div>
-                    </details>
-                </div>
+            <button class="hamburger" id="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+            <nav class="main-nav" id="main-menu" aria-label="Main navigation">
+                <a class="nav-link" href="{% url 'home' %}">Home</a>
+                <a class="nav-link" href="{% url 'dashboard' %}">Applications</a>
+                <a class="nav-add" href="{% url 'application_create' %}"><span aria-hidden="true">+</span> Add job</a>
+            </nav>
+            <div class="topbar-actions">
+                <details class="account-menu">
+                    <summary class="user-greeting">Hi {{ user.username }}</summary>
+                    <div class="account-dropdown">
+                        {% if request.resolver_match.url_name == 'dashboard' %}<button class="account-menu-item" type="button" id="summary-toggle" aria-controls="summary-modal" aria-haspopup="dialog">My status</button>{% else %}<a class="account-menu-item" href="{% url 'dashboard' %}#summary-modal">My status</a>{% endif %}
+                        <a class="account-menu-item" href="{% url 'application_export' %}">Download CSV</a>
+                        <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="account-menu-item" type="submit">Log out</button></form>
+                        <form method="post" action="{% url 'delete_account' %}" onsubmit="return confirm('Delete your account and all applications permanently?');">{% csrf_token %}<button class="account-menu-item account-delete" type="submit">Delete account</button></form>
+                    </div>
+                </details>
+            </div>
             {% else %}
-                <nav class="main-nav public-nav" aria-label="Main navigation"><a class="nav-link nav-button" href="{% url 'login' %}">Log in</a><a class="nav-add" href="{% url 'register' %}">Create account</a></nav>
+                <button class="hamburger" id="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                </button>
+                <nav class="main-nav public-nav" id="main-menu" aria-label="Main navigation">
+                    <a class="nav-link nav-button" href="{% url 'login' %}">Log in</a>
+                    <a class="nav-add" href="{% url 'register' %}">Create account</a>
+                </nav>
             {% endif %}
         </header>
         <main class="content">{% block content %}{% endblock %}</main>
