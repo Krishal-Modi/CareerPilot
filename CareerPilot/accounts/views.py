@@ -76,8 +76,3 @@ def delete_account_view(request):
 		request.session.flush()
 	return redirect('login')
 
-
-@login_required
-def dashboard(request):
-	return render(request, 'dashboard.html')
-

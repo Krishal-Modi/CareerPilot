@@ -13,8 +13,6 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 from pathlib import Path
 from urllib.parse import urlparse
-from urllib.parse import parse_qs
-from urllib.parse import unquote
 from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -107,54 +105,14 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/6.0/ref/settings/#databases
-
-database_url = os.environ.get('DATABASE_URL', '').strip()
-
-if database_url:
-    parsed = urlparse(database_url)
-    db_scheme = parsed.scheme.lower()
-    if db_scheme in {'postgres', 'postgresql', 'pgsql'}:
-        query_params = parse_qs(parsed.query)
-        sslmode = os.environ.get('POSTGRES_SSLMODE') or query_params.get('sslmode', ['require'])[0]
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.postgresql',
-                'NAME': parsed.path.lstrip('/'),
-                'USER': unquote(parsed.username or ''),
-                'PASSWORD': unquote(parsed.password or ''),
-                'HOST': parsed.hostname or '',
-                'PORT': str(parsed.port or '5432'),
-                'OPTIONS': {'sslmode': sslmode},
-            }
-        }
-    else:
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': BASE_DIR / 'db.sqlite3',
-            }
-        }
-elif os.environ.get('POSTGRES_DB'):
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.environ['POSTGRES_DB'],
-            'USER': os.environ.get('POSTGRES_USER', ''),
-            'PASSWORD': os.environ.get('POSTGRES_PASSWORD', ''),
-            'HOST': os.environ.get('POSTGRES_HOST', ''),
-            'PORT': os.environ.get('POSTGRES_PORT', '5432'),
-            'OPTIONS': {'sslmode': os.environ.get('POSTGRES_SSLMODE', 'require')},
-        }
+# Database - Using Firebase Firestore for all persistence
+# No traditional database required for production
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+}
 
 
 # Password validation

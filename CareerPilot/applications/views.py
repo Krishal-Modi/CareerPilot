@@ -2,7 +2,7 @@ import csv
 
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, render
 from google.cloud.firestore_v1.base_query import FieldFilter
 
@@ -127,7 +127,6 @@ def application_update(request, pk):
     document = database().collection('applications').document(pk)
     application = document.get()
     if not application.exists or application.to_dict().get('user_id') != request.user.uid:
-        from django.http import Http404
         raise Http404
     data = dict(application.to_dict())
     referrals = [dict(item.to_dict(), referral_id=item.id) for item in document.collection('referrals').stream()]
