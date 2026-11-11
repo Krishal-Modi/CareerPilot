@@ -37,6 +37,7 @@ class JobApplication(models.Model):
 
 	class Source(models.TextChoices):
 		LINKEDIN = 'linkedin', 'LinkedIn'
+		LINKEDIN_EASY_APPLY = 'linkedin_easy_apply', 'LinkedIn Easy Apply'
 		COMPANY_WEBSITE = 'company_website', 'Company Website'
 		INDEED = 'indeed', 'Indeed'
 		GLASSDOOR = 'glassdoor', 'Glassdoor'

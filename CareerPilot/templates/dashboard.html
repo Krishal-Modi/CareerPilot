@@ -36,6 +36,7 @@
         </select>
         <button class="button button-dark" type="submit">Search</button>
         <a class="button button-outline" href="{% url 'application_export' %}?q={{ query|urlencode }}&status={{ status|urlencode }}">Download CSV</a>
+        {% if query or status %}<a class="clear-filters" href="{% url 'dashboard' %}">Clear filters</a>{% endif %}
     </form>
     {% if applications %}
     <div class="table-wrap"><table class="application-table"><thead><tr><th>#</th><th>Company</th><th>Role</th><th>Location</th><th>Date applied</th><th>Status</th><th><span class="sr-only">Actions</span></th></tr></thead><tbody>

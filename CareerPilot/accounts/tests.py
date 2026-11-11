@@ -8,8 +8,11 @@ from .forms import EmailAuthenticationForm, EmailUserCreationForm
 
 class FirebaseAuthenticationTests(SimpleTestCase):
     def test_authentication_forms_use_email_fields(self):
-        self.assertEqual(list(EmailAuthenticationForm.base_fields), ['email', 'password'])
+        self.assertEqual(list(EmailAuthenticationForm.base_fields), ['email', 'password', 'remember_me'])
         self.assertEqual(list(EmailUserCreationForm.base_fields), ['email', 'username', 'password1', 'password2'])
+
+    def test_remember_me_is_enabled_by_default(self):
+        self.assertTrue(EmailAuthenticationForm().initial['remember_me'])
 
     def test_home_page_is_public(self):
         response = self.client.get(reverse('home'))

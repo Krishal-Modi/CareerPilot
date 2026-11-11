@@ -15,7 +15,7 @@ Open <http://127.0.0.1:8000/>. Register a user, then log in. Firebase Authentica
 
 ## Deploy on Render + Firebase (step by step)
 
-This project uses Render for hosting and Firebase Authentication plus Cloud Firestore for data. Existing Neon data is not imported.
+This project uses Render for hosting and Firebase Authentication plus Cloud Firestore for data. Existing external database data is not imported.
 
 ### 1. Push project to GitHub
 
@@ -23,7 +23,7 @@ From project root:
 
 ```powershell
 git add .
-git commit -m "Prepare deployment to Render with Neon"
+git commit -m "Update CareerPilot"
 git push origin main
 ```
 
@@ -95,3 +95,6 @@ Workflow:
 - Firestore stores each application in `applications` and referrals in its `referrals` subcollection.
 - Firebase UID ownership prevents users from viewing each other's applications.
 - Free Render can sleep on inactivity; paid plan is better for always-on uptime.
+- CSV export includes company name, job title, application URL, location, date applied, and source.
+- The source list includes LinkedIn Easy Apply.
+- Login keeps you signed in for 14 days by default. Uncheck “Keep me signed in” to use the current browser session only.

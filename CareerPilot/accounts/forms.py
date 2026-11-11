@@ -13,5 +13,17 @@ class EmailUserCreationForm(forms.Form):
 
 
 class EmailAuthenticationForm(forms.Form):
-	email = forms.EmailField(label='Email address', max_length=254)
-	password = forms.CharField(label='Password', widget=forms.PasswordInput)
+	email = forms.EmailField(
+		label='Email address',
+		max_length=254,
+		widget=forms.EmailInput(attrs={'autocomplete': 'email'}),
+	)
+	password = forms.CharField(
+		label='Password',
+		widget=forms.PasswordInput(attrs={'autocomplete': 'current-password'}),
+	)
+	remember_me = forms.BooleanField(
+		label='Keep me signed in for 14 days',
+		required=False,
+		initial=True,
+	)

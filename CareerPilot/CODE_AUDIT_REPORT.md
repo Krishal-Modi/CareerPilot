@@ -49,7 +49,7 @@ Comprehensive code review and cleanup completed. All bugs fixed, unnecessary cod
 ## ⚠️ Identified Issues (Not Changed - By Design)
 
 ### 1. **Unused Django ORM Models**
-Files: `applications/models.py`, `contacts/models.py`
+File: `applications/models.py`
 
 **Status**: Left as-is because:
 - Models use Django ORM but all data is persisted via Firebase Firestore
@@ -61,19 +61,8 @@ Files: `applications/models.py`, `contacts/models.py`
 - If you ever need traditional database, these models are ready
 - Otherwise, consider these as "reference schemas" for Firestore document structure
 
-### 2. **Unused Contacts App**
-The `contacts` app is:
-- Registered in `INSTALLED_APPS`
-- Defines `Referral` model (not used - referrals managed via Firestore)
-- Not imported or referenced anywhere
-
-**Status**: Left as-is to avoid breaking changes
-
-**Recommendation**: Can be safely removed in future if needed:
-```python
-# Remove from INSTALLED_APPS in settings.py
-# Delete contacts/ folder
-```
+### 2. **Removed Contacts App**
+The unused `contacts` app was removed. Referrals are managed directly in each Firestore application's `referrals` subcollection.
 
 ---
 

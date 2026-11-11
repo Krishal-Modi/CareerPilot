@@ -33,6 +33,10 @@ class AccountLoginView(LoginView):
 		self.request.session['firebase_uid'] = firebase_user['localId']
 		self.request.session['firebase_email'] = firebase_user['email']
 		self.request.session['firebase_username'] = profile.get('username', firebase_user['email'].split('@')[0])
+		if form.cleaned_data.get('remember_me'):
+			self.request.session.set_expiry(60 * 60 * 24 * 14)
+		else:
+			self.request.session.set_expiry(0)
 		return redirect(self.get_success_url())
 
 

@@ -24,6 +24,8 @@ a { color: var(--accent-dark); }
 h1 { margin: 0 0 1.25rem; font-size: clamp(2rem, 5vw, 3.8rem); line-height: 1.03; }
 h2 { margin: 0 0 .5rem; font-size: 1.7rem; }
 .form-stack p { display: grid; gap: .4rem; margin: 0 0 1rem; font-family: Arial, sans-serif; font-size: .9rem; }
+.form-stack p:has(input[type="checkbox"]) { display: flex; grid-template-columns: auto 1fr; align-items: center; gap: .6rem; color: var(--muted); font-size: .8rem; }
+.form-stack input[type="checkbox"] { width: auto; accent-color: var(--accent); }
 .form-stack input { width: 100%; padding: .75rem; border: 1px solid #b9c7bd; border-radius: 3px; }
 .form-stack ul, .errorlist { padding-left: 1.1rem; color: #a33b2b; font-family: Arial, sans-serif; font-size: .82rem; }
 .button { display: inline-block; padding: .75rem 1.1rem; color: #fff; background: var(--accent); border: 0; border-radius: 5px; cursor: pointer; font-family: Arial, sans-serif; font-weight: 700; text-decoration: none; transition: background .2s ease, transform .2s ease, box-shadow .2s ease; }
@@ -96,6 +98,8 @@ h2 { margin: 0 0 .5rem; font-size: 1.7rem; }
 .toolbar select { width: 11rem; }
 .button-dark { background: var(--ink); }
 .button-dark:hover { background: #31423c; }
+.clear-filters { align-self: center; color: var(--muted); font: .78rem Arial, sans-serif; white-space: nowrap; }
+.clear-filters:hover { color: var(--accent-dark); }
 .table-wrap { overflow-x: auto; }
 .application-table { width: 100%; min-width: 960px; border-collapse: collapse; font: .86rem Arial, sans-serif; }
 .application-table th { padding: .85rem 1rem; color: var(--muted); background: #f4f7f2; font-size: .68rem; letter-spacing: .08em; text-align: left; text-transform: uppercase; }

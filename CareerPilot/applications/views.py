@@ -52,8 +52,8 @@ def _csv_value(value):
     if hasattr(value, 'date') and not hasattr(value, 'year'):
         value = value.date()
     if hasattr(value, 'isoformat'):
-        return f'Date: {value.isoformat()}'
-    return f'Date: {value}'
+        return value.isoformat()
+    return str(value)
 
 
 def _filtered_applications(request, applications=None):
@@ -103,9 +103,19 @@ def application_export(request):
     response['Content-Disposition'] = 'attachment; filename="careerpilot-applications.csv"'
     response.write('\ufeff')
     writer = csv.writer(response)
-    writer.writerow(['Date of application', 'Company name', 'Company role', 'Location', 'Application URL'])
+    writer.writerow(['Company name', 'Job title', 'Application URL', 'Location', 'Date applied', 'Source'])
     for application in applications:
-        writer.writerow([_csv_value(application.get('date_applied')), application.get('company', ''), application.get('job_title', ''), application.get('location', ''), application.get('job_url', '')])
+        writer.writerow([
+            application.get('company', ''),
+            application.get('job_title', ''),
+            application.get('job_url', ''),
+            application.get('location', ''),
+            _csv_value(application.get('date_applied')),
+            dict(JobApplication.Source.choices).get(
+                application.get('source'),
+                application.get('source', ''),
+            ),
+        ])
     return response
 
 

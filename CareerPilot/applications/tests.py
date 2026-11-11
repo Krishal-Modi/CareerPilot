@@ -13,6 +13,10 @@ class FirebaseApplicationFormTests(SimpleTestCase):
 
         self.assertEqual(form.initial['date_applied'], timezone.localdate())
         self.assertEqual(form.initial['source'], JobApplication.Source.LINKEDIN)
+        self.assertIn(
+            ('linkedin_easy_apply', 'LinkedIn Easy Apply'),
+            form.fields['source'].choices,
+        )
 
     def test_application_form_accepts_plain_text_job_url(self):
         form = JobApplicationForm(data={
@@ -72,7 +76,12 @@ class FirebaseApplicationFormTests(SimpleTestCase):
         })
 
     def test_csv_date_value_is_readable(self):
-        self.assertEqual(_csv_value('2026-08-27'), 'Date: 2026-08-27')
+        self.assertEqual(_csv_value('2026-08-27'), '2026-08-27')
+
+    def test_source_choices_include_human_readable_easy_apply_label(self):
+        source_labels = dict(JobApplication.Source.choices)
+
+        self.assertEqual(source_labels['linkedin_easy_apply'], 'LinkedIn Easy Apply')
 
     def test_application_dates_are_serialized_for_firestore(self):
         form = JobApplicationForm(data={
